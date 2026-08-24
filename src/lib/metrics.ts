@@ -1,4 +1,5 @@
-import { CATALOGS, countDone } from './catalogs'
+import { CATALOGS, countDone, decodePick } from './catalogs'
+import { NEETCODE_250, type Difficulty } from './neetcode'
 import { ALL_DAYS, dayType, isMechanismDay, tasksFor, type Task } from './schedule'
 import {
   APPS_TARGET,
@@ -367,6 +368,64 @@ export function revisionHealth(state: TrackerState, day: number): RevisionHealth
     overdue,
     averageGap: gapCount === 0 ? null : gapTotal / gapCount,
   }
+}
+
+export type RevisionItem = {
+  key: string
+  day: number
+  kind: string
+  name: string
+  url?: string
+  difficulty?: Difficulty
+}
+
+const PICK_KIND: Record<string, string> = {
+  design: 'HLD',
+  lld: 'LLD',
+  gfe: 'GFE',
+  beh: 'Behavioral',
+  build: 'Mechanism',
+}
+
+export function revisionQueue(state: TrackerState, day: number, lookback = 3): RevisionItem[] {
+  const items: RevisionItem[] = []
+  const from = Math.max(1, day - lookback)
+
+  for (let d = from; d < day; d += 1) {
+    const record = dayRecord(state, d)
+
+    record.dsa.forEach((entry, i) => {
+      const listed = entry.nc === undefined ? undefined : NEETCODE_250[entry.nc]
+      items.push({
+        key: `d${d}:dsa:${i}`,
+        day: d,
+        kind: 'DSA',
+        name: entry.name,
+        ...(entry.url ? { url: entry.url } : {}),
+        ...(listed ? { difficulty: listed.difficulty } : {}),
+      })
+    })
+
+    for (const [taskId, kind] of Object.entries(PICK_KIND)) {
+      const picked = decodePick(record.picks[taskId])
+      if (!picked) continue
+      const name = picked.kind === 'catalog' ? picked.item.name : picked.name
+      const url = picked.kind === 'catalog' ? picked.item.url : undefined
+      items.push({
+        key: `d${d}:${taskId}`,
+        day: d,
+        kind,
+        name,
+        ...(url ? { url } : {}),
+      })
+    }
+  }
+
+  return items
+}
+
+export function revisionKey(item: RevisionItem): string {
+  return `revise:${item.key}`
 }
 
 export type NoteItem =

@@ -1,12 +1,13 @@
 import { setFinished, useTracker } from '../../hooks/useTracker'
 import { dayCompletion, dayRecord } from '../../lib/metrics'
-import { formatDayDate, sessionsFor } from '../../lib/schedule'
+import { dayType, formatDayDate, sessionsFor } from '../../lib/schedule'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { DayNote } from './DayNote'
 import { DeltaLog } from './DeltaLog'
 import { DsaLog } from './DsaLog'
 import { RedoQueue } from './RedoQueue'
+import { RevisionPanel } from './RevisionPanel'
 import { TaskRow } from './TaskRow'
 
 export function TodayView() {
@@ -15,6 +16,7 @@ export function TodayView() {
   const record = dayRecord(state, day)
   const sessions = sessionsFor(day)
   const completion = dayCompletion(state, day)
+  const isMockDay = dayType(day) === 'M'
 
   return (
     <div className="space-y-6">
@@ -55,6 +57,8 @@ export function TodayView() {
             : ''}
         </p>
       </Card>
+
+      {isMockDay && <RevisionPanel day={day} record={record} />}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <DsaLog day={day} record={record} />
