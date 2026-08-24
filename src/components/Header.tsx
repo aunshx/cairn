@@ -147,8 +147,6 @@ export function Header({
             <SaveStatus state={saveState} onOpenSettings={onOpenSettings} />
 
             <div className="flex items-center gap-2">
-              <ThemeToggle />
-
               <button
                 type="button"
                 onClick={onOpenSettings}
@@ -163,6 +161,8 @@ export function Header({
                   Account
                 </span>
               </button>
+
+              <ThemeToggle />
 
               <button
                 type="button"
