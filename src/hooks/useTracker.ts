@@ -399,6 +399,10 @@ export const setCatalogNote =
   (key: CatalogKey, index: number, note: string): Recipe =>
   (state) => ({ ...state, notes: { ...state.notes, [`${key}:${index}`]: note } })
 
+export const setMechResult =
+  (index: number, value: string): Recipe =>
+  (state) => ({ ...state, mechResults: { ...state.mechResults, [index]: value } })
+
 export const setStart =
   (start: string): Recipe =>
   (state) => ({ ...state, start })

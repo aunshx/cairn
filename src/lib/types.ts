@@ -41,6 +41,7 @@ export type TrackerState = {
   gfe: Record<string, boolean>
   mech: Record<string, boolean>
   beh: Record<string, boolean>
+  mechResults: Record<number, string>
   notes: Record<string, string>
   deltas: Delta[]
   redos: Redo[]
@@ -97,6 +98,16 @@ function strMap(v: unknown): Record<string, string> {
   return out
 }
 
+function indexedStrMap(v: unknown): Record<number, string> {
+  const out: Record<number, string> = {}
+  if (!isRecord(v)) return out
+  for (const [k, val] of Object.entries(v)) {
+    const n = Number(k)
+    if (Number.isInteger(n) && n >= 0 && typeof val === 'string') out[n] = val
+  }
+  return out
+}
+
 function arr(v: unknown): unknown[] {
   return Array.isArray(v) ? v : []
 }
@@ -129,6 +140,7 @@ export function emptyState(): TrackerState {
     gfe: {},
     mech: {},
     beh: {},
+    mechResults: {},
     notes: {},
     deltas: [],
     redos: [],
@@ -176,6 +188,7 @@ export function validateState(raw: unknown): TrackerState {
     gfe: boolMap(raw.gfe),
     mech: boolMap(raw.mech),
     beh: boolMap(raw.beh),
+    mechResults: indexedStrMap(raw.mechResults),
     notes: strMap(raw.notes),
     deltas: arr(raw.deltas)
       .filter(isRecord)
