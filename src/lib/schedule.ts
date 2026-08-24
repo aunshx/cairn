@@ -1,5 +1,5 @@
-import { nextUnchecked, noteKey, type CatalogItem } from './catalogs'
-import type { CatalogKey, DayType, TrackerState } from './types'
+import { CATALOGS, nextUnchecked, noteKey, type CatalogItem } from './catalogs'
+import type { CatalogKey, DayRecord, DayType, TrackerState } from './types'
 import { TOTAL_DAYS } from './types'
 
 export type TaskCatalog = 'design' | CatalogKey
@@ -167,26 +167,65 @@ export type SlotResolution = {
   relabel: string | null
 }
 
-const DESIGN_FALLBACK: { key: CatalogKey; relabel: string | null }[] = [
-  { key: 'hld', relabel: null },
-  { key: 'lld', relabel: 'LLD second pass' },
-]
+function checkedIndices(map: Record<string, boolean>): number[] {
+  return Object.entries(map)
+    .filter(([, on]) => on)
+    .map(([k]) => Number(k))
+    .filter((n) => Number.isInteger(n))
+    .sort((a, b) => a - b)
+}
 
-export function resolveDaySlots(type: DayType, state: TrackerState): Record<string, SlotResolution> {
-  const claimed = new Set<string>()
-  const out: Record<string, SlotResolution> = {}
+function slotCatalog(slot: TaskCatalog, state: TrackerState): CatalogKey {
+  if (slot !== 'design') return slot
+  if (nextUnchecked('hld', state.hld)) return 'hld'
+  return nextUnchecked('lld', state.lld) ? 'lld' : 'hld'
+}
 
+type LinkedTask = { task: Task; catalog: CatalogKey }
+
+export function resolveDaySlots(
+  type: DayType,
+  state: TrackerState,
+  record: DayRecord,
+): Record<string, SlotResolution> {
+  const linked: LinkedTask[] = []
   for (const task of tasksFor(type)) {
     if (!task.catalog) continue
-    const order =
-      task.catalog === 'design' ? DESIGN_FALLBACK : [{ key: task.catalog, relabel: null }]
+    linked.push({ task, catalog: slotCatalog(task.catalog, state) })
+  }
 
-    for (const { key, relabel } of order) {
-      const found = nextUnchecked(key, state[key], claimed)
-      if (!found) continue
-      claimed.add(noteKey(key, found.index))
-      out[task.id] = { catalog: key, index: found.index, item: found.item, relabel }
-      break
+  const out: Record<string, SlotResolution> = {}
+
+  for (const catalog of new Set(linked.map((l) => l.catalog))) {
+    const inCatalog = linked.filter((l) => l.catalog === catalog)
+    const settled = inCatalog.filter((l) => record.done[l.task.id] === true)
+    const consumed = checkedIndices(state[catalog]).slice(-settled.length)
+
+    settled.forEach((entry, i) => {
+      const index = consumed[i]
+      const item = index === undefined ? undefined : CATALOGS[catalog].items[index]
+      if (index === undefined || !item) return
+      out[entry.task.id] = {
+        catalog,
+        index,
+        item,
+        relabel: entry.task.catalog === 'design' && catalog === 'lld' ? 'LLD second pass' : null,
+      }
+    })
+  }
+
+  const claimed = new Set(Object.values(out).map((slot) => noteKey(slot.catalog, slot.index)))
+
+  for (const { task, catalog } of linked) {
+    if (out[task.id]) continue
+    const found = nextUnchecked(catalog, state[catalog], claimed)
+    if (!found) continue
+    claimed.add(noteKey(catalog, found.index))
+    out[task.id] = {
+      catalog,
+      index: found.index,
+      item: found.item,
+      relabel: task.catalog === 'design' && catalog === 'lld' ? 'LLD second pass' : null,
     }
   }
 
