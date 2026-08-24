@@ -1,15 +1,10 @@
 import { CATALOGS, countDone, decodePick } from './catalogs'
 import { NEETCODE_250, type Difficulty } from './neetcode'
-import { ALL_DAYS, dayType, isMechanismDay, tasksFor, type Task } from './schedule'
+import { dayType, daysOf, isMechanismDay, tasksFor, type Task } from './schedule'
 import {
   APPLICATION_STATUSES,
-  APPS_TARGET,
   GYM_ACTIVITIES,
   GYM_DEFAULT_MINUTES,
-  DSA_TARGET,
-  MECH_TARGET,
-  MOCK_TARGET,
-  TOTAL_DAYS,
   emptyDay,
   type Application,
   type ApplicationStatus,
@@ -52,14 +47,14 @@ export function isDone(record: DayRecord, taskId: string): boolean {
 }
 
 export function dayCompletion(state: TrackerState, day: number): { done: number; total: number; rate: number } {
-  const tasks = tasksFor(day)
+  const tasks = tasksFor(day, state.cycle)
   const record = dayRecord(state, day)
   const done = tasks.reduce((n, t) => (isDone(record, t.id) ? n + 1 : n), 0)
   return { done, total: tasks.length, rate: tasks.length === 0 ? 0 : done / tasks.length }
 }
 
 export function finishedDays(state: TrackerState): number[] {
-  return ALL_DAYS.filter((d) => dayRecord(state, d).finished)
+  return daysOf(state.totalDays).filter((d) => dayRecord(state, d).finished)
 }
 
 export function currentStreak(state: TrackerState): number {
@@ -84,7 +79,10 @@ export function habitStreak(state: TrackerState, taskId: string, upTo: number): 
 }
 
 export function habitTotal(state: TrackerState, taskId: string): number {
-  return ALL_DAYS.reduce((n, d) => (isDone(dayRecord(state, d), taskId) ? n + 1 : n), 0)
+  return daysOf(state.totalDays).reduce(
+    (n, d) => (isDone(dayRecord(state, d), taskId) ? n + 1 : n),
+    0,
+  )
 }
 
 export function completionRate(state: TrackerState): { done: number; total: number; rate: number | null } {
@@ -153,11 +151,33 @@ export function flagRate(state: TrackerState, day: number): FlagRate {
   }
 }
 
-const FIXED_TARGET: Partial<Record<TrackKey, number>> = {
-  dsa: DSA_TARGET,
-  apps: APPS_TARGET,
-  mock: MOCK_TARGET,
-  mech: MECH_TARGET,
+export type Targets = Record<TrackKey, number>
+
+export function planTargets(state: TrackerState): Targets {
+  let dsa = 0
+  let apps = 0
+  let mock = 0
+  let mech = 0
+
+  for (const day of daysOf(state.totalDays)) {
+    for (const task of tasksFor(day, state.cycle)) {
+      if (task.id === 'dsa1' || task.id === 'dsa2') dsa += task.cap ?? 0
+      if (task.id === 'apps') apps += task.cap ?? 0
+      if (task.id === 'mock1' || task.id === 'mock2') mock += 1
+    }
+    if (isMechanismDay(day, state.cycle)) mech += 1
+  }
+
+  return {
+    hld: CATALOGS.hld.items.length,
+    lld: CATALOGS.lld.items.length,
+    gfe: CATALOGS.gfe.items.length,
+    beh: CATALOGS.beh.items.length,
+    mech: Math.min(mech, CATALOGS.mech.items.length),
+    dsa,
+    apps,
+    mock,
+  }
 }
 
 export function mockCount(record: DayRecord): number {
@@ -165,30 +185,33 @@ export function mockCount(record: DayRecord): number {
 }
 
 export function mocksCompleted(state: TrackerState): number {
-  return ALL_DAYS.reduce((n, d) => (dayType(d) === 'M' ? n + mockCount(dayRecord(state, d)) : n), 0)
+  return daysOf(state.totalDays).reduce(
+    (n, d) => (dayType(d, state.cycle) === 'M' ? n + mockCount(dayRecord(state, d)) : n),
+    0,
+  )
 }
 
-export function trackTotal(track: TrackKey): number {
-  const fixed = FIXED_TARGET[track]
-  if (fixed !== undefined) return fixed
-  return CATALOGS[track as CatalogKey].items.length
+export function trackTotal(state: TrackerState, track: TrackKey): number {
+  return planTargets(state)[track]
 }
 
 export function trackDone(state: TrackerState, track: TrackKey): number {
-  if (track === 'dsa') return ALL_DAYS.reduce((n, d) => n + dsaCount(dayRecord(state, d)), 0)
-  if (track === 'apps') return ALL_DAYS.reduce((n, d) => n + (dayRecord(state, d).n.apps ?? 0), 0)
+  if (track === 'dsa')
+    return daysOf(state.totalDays).reduce((n, d) => n + dsaCount(dayRecord(state, d)), 0)
+  if (track === 'apps')
+    return daysOf(state.totalDays).reduce((n, d) => n + (dayRecord(state, d).n.apps ?? 0), 0)
   if (track === 'mock') return mocksCompleted(state)
   return countDone(state[track], track)
 }
 
 function trackDoneOnDay(state: TrackerState, track: TrackKey, day: number): number {
-  const type = dayType(day)
+  const type = dayType(day, state.cycle)
   const record = dayRecord(state, day)
   if (track === 'dsa') return dsaCount(record)
   if (track === 'apps') return record.n.apps ?? 0
   if (track === 'mock') return type === 'M' ? mockCount(record) : 0
   if (track === 'beh') return isDone(record, 'beh') ? 1 : 0
-  if (track === 'mech') return isMechanismDay(day) && isDone(record, 'build') ? 1 : 0
+  if (track === 'mech') return isMechanismDay(day, state.cycle) && isDone(record, 'build') ? 1 : 0
   if (track === 'gfe') return type === 'A' && isDone(record, 'gfe') ? 1 : 0
   if (track === 'hld') return isDone(record, 'design') ? 1 : 0
   return type === 'B' && isDone(record, 'lld') ? 1 : 0
@@ -208,9 +231,9 @@ export type TrackProgress = {
 }
 
 export function trackProgress(state: TrackerState, day: number, track: TrackKey): TrackProgress {
-  const total = trackTotal(track)
+  const total = trackTotal(state, track)
   const done = trackDone(state, track)
-  const expected = (total * Math.min(day, TOTAL_DAYS)) / TOTAL_DAYS
+  const expected = (total * Math.min(day, state.totalDays)) / state.totalDays
   const weeklyRate = windowDays(day, 7).reduce((n, d) => n + trackDoneOnDay(state, track, d), 0)
   const remaining = Math.max(0, total - done)
 
@@ -250,24 +273,25 @@ export function worstProjection(state: TrackerState, day: number): TrackProgress
 export type BurnUpPoint = { day: number; actual: number; target: number }
 
 export function burnUp(state: TrackerState, day: number): { points: BurnUpPoint[]; target: number } {
+  const target = planTargets(state).dsa
   const points: BurnUpPoint[] = [{ day: 0, actual: 0, target: 0 }]
   let running = 0
-  for (const d of ALL_DAYS) {
+  for (const d of daysOf(state.totalDays)) {
     running += dsaCount(dayRecord(state, d))
-    if (d <= day) points.push({ day: d, actual: running, target: (DSA_TARGET * d) / TOTAL_DAYS })
+    if (d <= day) points.push({ day: d, actual: running, target: (target * d) / state.totalDays })
   }
-  return { points, target: DSA_TARGET }
+  return { points, target }
 }
 
 export type HeatCell = { day: number; type: DayType; rate: number; done: number; total: number; started: boolean }
 
 export function heatmap(state: TrackerState): HeatCell[] {
-  return ALL_DAYS.map((day) => {
+  return daysOf(state.totalDays).map((day) => {
     const c = dayCompletion(state, day)
     const record = dayRecord(state, day)
     return {
       day,
-      type: dayType(day),
+      type: dayType(day, state.cycle),
       rate: c.rate,
       done: c.done,
       total: c.total,
@@ -287,7 +311,7 @@ export function slips(state: TrackerState, limit = 5): Slip[] {
 
   for (const day of finishedDays(state)) {
     const record = dayRecord(state, day)
-    for (const task of tasksFor(day)) {
+    for (const task of tasksFor(day, state.cycle)) {
       register(task)
       const entry = stats.get(task.id) ?? { missed: 0, available: 0 }
       entry.available += 1
@@ -393,9 +417,10 @@ const PICK_KIND: Record<string, string> = {
   build: 'Mechanism',
 }
 
-export function revisionQueue(state: TrackerState, day: number, lookback = 3): RevisionItem[] {
+export function revisionQueue(state: TrackerState, day: number, lookback?: number): RevisionItem[] {
   const items: RevisionItem[] = []
-  const from = Math.max(1, day - lookback)
+  const span = lookback ?? state.cycle - 1
+  const from = Math.max(1, day - span)
 
   for (let d = from; d < day; d += 1) {
     const record = dayRecord(state, d)
@@ -490,7 +515,7 @@ export function gymStats(state: TrackerState): GymStats {
   let daysTrained = 0
   let totalMinutes = 0
 
-  for (const day of ALL_DAYS) {
+  for (const day of daysOf(state.totalDays)) {
     const record = dayRecord(state, day)
     let trainedToday = false
     for (const taskId of ['gym1', 'gym2']) {
@@ -543,7 +568,7 @@ export function recentNotes(state: TrackerState, limit = 5): NoteItem[] {
       }
     })
 
-  for (const day of ALL_DAYS) {
+  for (const day of daysOf(state.totalDays)) {
     const note = dayRecord(state, day).note.trim()
     if (note) items.push({ kind: 'day', day, note })
   }

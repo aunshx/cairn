@@ -1,5 +1,5 @@
 import type { CatalogKey, DayType } from './types'
-import { TOTAL_DAYS } from './types'
+import { DEFAULT_CYCLE, type Plan } from './types'
 
 export type Task = {
   id: string
@@ -19,11 +19,9 @@ export type Session = {
   tasks: Task[]
 }
 
-export const CYCLE = 4
-
-export function dayType(day: number): DayType {
-  if (day % CYCLE === 0) return 'M'
-  return workIndex(day) % 2 === 1 ? 'A' : 'B'
+export function dayType(day: number, cycle: number = DEFAULT_CYCLE): DayType {
+  if (day % cycle === 0) return 'M'
+  return workIndex(day, cycle) % 2 === 1 ? 'A' : 'B'
 }
 
 export function dayTypeLabel(type: DayType): string {
@@ -191,37 +189,41 @@ const DAY_M: Session[] = [
   HABITS,
 ]
 
-export function workIndex(day: number): number {
-  return day - Math.floor((day - 1) / CYCLE)
+export function workIndex(day: number, cycle: number = DEFAULT_CYCLE): number {
+  return day - Math.floor((day - 1) / cycle)
 }
 
-export function bDayOrdinal(day: number): number | null {
-  if (dayType(day) !== 'B') return null
-  return workIndex(day) / 2
+export function bDayOrdinal(day: number, cycle: number = DEFAULT_CYCLE): number | null {
+  if (dayType(day, cycle) !== 'B') return null
+  return workIndex(day, cycle) / 2
 }
 
-export function isMechanismDay(day: number): boolean {
-  const ordinal = bDayOrdinal(day)
-  return ordinal !== null && ordinal % 2 === 0
+export function isMechanismDay(day: number, cycle: number = DEFAULT_CYCLE): boolean {
+  const ordinal = bDayOrdinal(day, cycle)
+  return ordinal !== null && Number.isInteger(ordinal) && ordinal % 2 === 0
 }
 
-export function sessionsFor(day: number): Session[] {
-  const type = dayType(day)
+export function sessionsFor(day: number, cycle: number = DEFAULT_CYCLE): Session[] {
+  const type = dayType(day, cycle)
   if (type === 'A') return DAY_A
   if (type === 'M') return DAY_M
-  return isMechanismDay(day) ? DAY_B_MECH : DAY_B_AGENTIC
+  return isMechanismDay(day, cycle) ? DAY_B_MECH : DAY_B_AGENTIC
 }
 
-export function tasksFor(day: number): Task[] {
-  return sessionsFor(day).flatMap((s) => s.tasks)
+export function tasksFor(day: number, cycle: number = DEFAULT_CYCLE): Task[] {
+  return sessionsFor(day, cycle).flatMap((s) => s.tasks)
 }
 
-export function taskById(day: number, id: string): Task | null {
-  return tasksFor(day).find((t) => t.id === id) ?? null
+export function daysOf(totalDays: number): number[] {
+  return Array.from({ length: totalDays }, (_, i) => i + 1)
 }
 
-export function capFor(day: number, id: string): number | null {
-  return taskById(day, id)?.cap ?? null
+export function taskById(day: number, id: string, cycle: number = DEFAULT_CYCLE): Task | null {
+  return tasksFor(day, cycle).find((t) => t.id === id) ?? null
+}
+
+export function capFor(day: number, id: string, cycle: number = DEFAULT_CYCLE): number | null {
+  return taskById(day, id, cycle)?.cap ?? null
 }
 
 export function parseIso(iso: string): Date {
@@ -251,12 +253,16 @@ export function formatShortDate(start: string, day: number): string {
   return SHORT_DATE.format(dateForDay(start, day))
 }
 
-export function dayForToday(start: string, now = new Date()): number | null {
-  const a = parseIso(start)
+export function dayForToday(plan: Plan, now = new Date()): number | null {
+  const a = parseIso(plan.start)
   const b = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const diff = Math.round((b.getTime() - a.getTime()) / 86_400_000)
-  if (diff < 0 || diff >= TOTAL_DAYS) return null
+  if (diff < 0 || diff >= plan.totalDays) return null
   return diff + 1
 }
 
-export const ALL_DAYS: number[] = Array.from({ length: TOTAL_DAYS }, (_, i) => i + 1)
+export function endDateIso(plan: Plan): string {
+  const d = dateForDay(plan.start, plan.totalDays)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}

@@ -82,11 +82,31 @@ export type TrackerState = {
   redos: Redo[]
   applications: Application[]
   theme: Theme
+  totalDays: number
+  cycle: number
 }
 
 export const GYM_ACTIVITIES = ['CST', 'BB', 'LA', 'Cycling', 'Run', 'Inc Walk'] as const
 
 export type GymActivity = (typeof GYM_ACTIVITIES)[number]
+
+export const DEFAULT_TOTAL_DAYS = 42
+
+export const DEFAULT_CYCLE = 4
+
+export const MIN_TOTAL_DAYS = 7
+
+export const MAX_TOTAL_DAYS = 180
+
+export const MIN_CYCLE = 2
+
+export const MAX_CYCLE = 14
+
+export type Plan = {
+  start: string
+  totalDays: number
+  cycle: number
+}
 
 export const GYM_DEFAULT_MINUTES = 45
 
@@ -98,15 +118,10 @@ export type SaveState = 'saved' | 'unsaved' | 'saving' | 'failed'
 
 export type ViewKey = 'today' | 'metrics' | 'catalog'
 
-export const TOTAL_DAYS = 42
 
-export const DSA_TARGET = 262
 
-export const MOCK_TARGET = 20
 
-export const APPS_TARGET = 96
 
-export const MECH_TARGET = 8
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -122,6 +137,10 @@ function bool(v: unknown, fallback = false): boolean {
 
 function int(v: unknown, fallback: number): number {
   return typeof v === 'number' && Number.isFinite(v) ? Math.trunc(v) : fallback
+}
+
+function clamp(value: number, low: number, high: number): number {
+  return Math.min(high, Math.max(low, value))
 }
 
 function boolMap(v: unknown): Record<string, boolean> {
@@ -220,6 +239,8 @@ export function emptyState(): TrackerState {
     redos: [],
     applications: [],
     theme: 'system',
+    totalDays: DEFAULT_TOTAL_DAYS,
+    cycle: DEFAULT_CYCLE,
   }
 }
 
@@ -257,7 +278,7 @@ export function validateState(raw: unknown): TrackerState {
   if (isRecord(raw.days)) {
     for (const [k, v] of Object.entries(raw.days)) {
       const n = Number(k)
-      if (!Number.isInteger(n) || n < 1 || n > TOTAL_DAYS) continue
+      if (!Number.isInteger(n) || n < 1 || n > MAX_TOTAL_DAYS) continue
       days[String(n)] = validateDay(v)
     }
   }
@@ -266,7 +287,7 @@ export function validateState(raw: unknown): TrackerState {
 
   return {
     start: ISO_DATE.test(start) ? start : base.start,
-    day: Math.min(TOTAL_DAYS, Math.max(1, int(raw.day, 1))),
+    day: Math.max(1, int(raw.day, 1)),
     days,
     hld: boolMap(raw.hld),
     lld: boolMap(raw.lld),
@@ -279,7 +300,7 @@ export function validateState(raw: unknown): TrackerState {
     deltas: arr(raw.deltas)
       .filter(isRecord)
       .map((d) => ({
-        day: Math.min(TOTAL_DAYS, Math.max(1, int(d.day, 1))),
+        day: Math.max(1, int(d.day, 1)),
         prob: str(d.prob),
         missed: str(d.missed),
         wrong: str(d.wrong),
@@ -295,7 +316,7 @@ export function validateState(raw: unknown): TrackerState {
         const status = str(a.status, 'applied')
         const url = typeof a.url === 'string' && a.url !== '' ? { url: a.url } : {}
         return {
-          day: Math.min(TOTAL_DAYS, Math.max(1, int(a.day, 1))),
+          day: Math.max(1, int(a.day, 1)),
           company: str(a.company),
           role: str(a.role),
           status: (APPLICATION_STATUSES as readonly string[]).includes(status)
@@ -308,5 +329,11 @@ export function validateState(raw: unknown): TrackerState {
     theme: (THEMES as readonly string[]).includes(str(raw.theme))
       ? (str(raw.theme) as Theme)
       : 'system',
+    totalDays: clamp(int(raw.totalDays, DEFAULT_TOTAL_DAYS), MIN_TOTAL_DAYS, MAX_TOTAL_DAYS),
+    cycle: clamp(int(raw.cycle, DEFAULT_CYCLE), MIN_CYCLE, MAX_CYCLE),
   }
+}
+
+export function planOf(state: TrackerState): Plan {
+  return { start: state.start, totalDays: state.totalDays, cycle: state.cycle }
 }
