@@ -68,8 +68,11 @@ export function useTrackerStore(userId: string | null): TrackerStore {
   const ownerRef = useRef<string | null>(null)
   const timerRef = useRef<number | null>(null)
   const aliveRef = useRef(true)
+  const flushRef = useRef<() => void>(() => {})
 
-  userIdRef.current = userId
+  useEffect(() => {
+    userIdRef.current = userId
+  }, [userId])
 
   const setDirtyState = useCallback((next: SaveState) => {
     if (aliveRef.current) setSaveState(next)
@@ -111,7 +114,7 @@ export function useTrackerStore(userId: string | null): TrackerStore {
       }
       setDirtyState('failed')
       if (timerRef.current) window.clearTimeout(timerRef.current)
-      timerRef.current = window.setTimeout(() => void flush(), RETRY_MS)
+      timerRef.current = window.setTimeout(() => flushRef.current(), RETRY_MS)
       return
     }
 
@@ -121,19 +124,20 @@ export function useTrackerStore(userId: string | null): TrackerStore {
     if (stateRef.current !== snapshot) {
       setDirtyState('unsaved')
       if (timerRef.current) window.clearTimeout(timerRef.current)
-      timerRef.current = window.setTimeout(() => void flush(), DEBOUNCE_MS)
+      timerRef.current = window.setTimeout(() => flushRef.current(), DEBOUNCE_MS)
       return
     }
     setDirtyState('saved')
   }, [setDirtyState, write])
 
-  const schedule = useCallback(
-    (delay: number) => {
-      if (timerRef.current) window.clearTimeout(timerRef.current)
-      timerRef.current = window.setTimeout(() => void flush(), delay)
-    },
-    [flush],
-  )
+  useEffect(() => {
+    flushRef.current = () => void flush()
+  }, [flush])
+
+  const schedule = useCallback((delay: number) => {
+    if (timerRef.current) window.clearTimeout(timerRef.current)
+    timerRef.current = window.setTimeout(() => flushRef.current(), delay)
+  }, [])
 
   useEffect(() => {
     aliveRef.current = true
@@ -228,17 +232,17 @@ export function useTrackerStore(userId: string | null): TrackerStore {
   const flushNow = useCallback(() => schedule(0), [schedule])
   const retryLoad = useCallback(() => setLoadToken((n) => n + 1), [])
 
-  const dirty = state !== null && state !== savedRef.current
+  const dirty = saveState !== 'saved'
 
   useEffect(() => {
     if (!dirty) return
-    const id = window.setInterval(() => void flush(), HEARTBEAT_MS)
+    const id = window.setInterval(() => flushRef.current(), HEARTBEAT_MS)
     return () => window.clearInterval(id)
-  }, [dirty, flush])
+  }, [dirty])
 
   useEffect(() => {
     if (!dirty) return
-    const onOnline = () => void flush()
+    const onOnline = () => flushRef.current()
     const onUnload = (e: BeforeUnloadEvent) => e.preventDefault()
     window.addEventListener('online', onOnline)
     window.addEventListener('beforeunload', onUnload)
@@ -246,17 +250,29 @@ export function useTrackerStore(userId: string | null): TrackerStore {
       window.removeEventListener('online', onOnline)
       window.removeEventListener('beforeunload', onUnload)
     }
-  }, [dirty, flush])
+  }, [dirty])
 
-  const tracker = useMemo<Tracker | null>(() => {
-    if (!state) return null
-    return { state, saveState, dirty, update, replace, flushNow, retryLoad }
-  }, [state, saveState, dirty, update, replace, flushNow, retryLoad])
-
-  if (!userId) return { status: 'idle', dirty }
-  if (loadError) return { status: 'error', message: loadError, retry: retryLoad }
-  if (!tracker) return { status: 'loading' }
-  return { status: 'ready', tracker, needsAuth }
+  return useMemo<TrackerStore>(() => {
+    if (!userId) return { status: 'idle', dirty }
+    if (loadError) return { status: 'error', message: loadError, retry: retryLoad }
+    if (!state) return { status: 'loading' }
+    return {
+      status: 'ready',
+      tracker: { state, saveState, dirty, update, replace, flushNow, retryLoad },
+      needsAuth,
+    }
+  }, [
+    userId,
+    loadError,
+    state,
+    saveState,
+    dirty,
+    needsAuth,
+    update,
+    replace,
+    flushNow,
+    retryLoad,
+  ])
 }
 
 export type Recipe = (state: TrackerState) => TrackerState
