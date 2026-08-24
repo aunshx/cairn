@@ -1,6 +1,6 @@
 import { CATALOGS, nextUnchecked, noteKey, type CatalogItem } from './catalogs'
 import type { CatalogKey, DayRecord, DayType, TrackerState } from './types'
-import { TOTAL_DAYS } from './types'
+import { TOTAL_DAYS, emptyDay } from './types'
 
 export type TaskCatalog = 'design' | CatalogKey
 
@@ -212,6 +212,33 @@ function slotCatalog(slot: TaskCatalog, state: TrackerState): CatalogKey {
 
 type LinkedTask = { task: Task; catalog: CatalogKey }
 
+function openIndices(
+  catalog: CatalogKey,
+  checked: Record<string, boolean>,
+  claimed: ReadonlySet<string>,
+): number[] {
+  const out: number[] = []
+  const items = CATALOGS[catalog].items
+  for (let i = 0; i < items.length; i += 1) {
+    if (checked[String(i)] || claimed.has(noteKey(catalog, i))) continue
+    out.push(i)
+  }
+  return out
+}
+
+function pendingBefore(day: number, state: TrackerState, catalog: CatalogKey): number {
+  let n = 0
+  for (let d = 1; d < day; d += 1) {
+    const record = state.days[String(d)] ?? emptyDay()
+    for (const task of tasksFor(d)) {
+      if (!task.catalog) continue
+      if (slotCatalog(task.catalog, state) !== catalog) continue
+      if (record.done[task.id] !== true) n += 1
+    }
+  }
+  return n
+}
+
 export function resolveDaySlots(
   day: number,
   state: TrackerState,
@@ -244,16 +271,25 @@ export function resolveDaySlots(
   }
 
   const claimed = new Set(Object.values(out).map((slot) => noteKey(slot.catalog, slot.index)))
+  const takenToday = new Map<CatalogKey, number>()
 
   for (const { task, catalog } of linked) {
     if (out[task.id]) continue
-    const found = nextUnchecked(catalog, state[catalog], claimed)
-    if (!found) continue
-    claimed.add(noteKey(catalog, found.index))
+
+    const k = takenToday.get(catalog) ?? 0
+    takenToday.set(catalog, k + 1)
+
+    const available = openIndices(catalog, state[catalog], claimed)
+    const index = available[pendingBefore(day, state, catalog) + k]
+    if (index === undefined) continue
+
+    const item = CATALOGS[catalog].items[index]
+    if (!item) continue
+
     out[task.id] = {
       catalog,
-      index: found.index,
-      item: found.item,
+      index,
+      item,
       relabel: task.catalog === 'design' && catalog === 'lld' ? 'LLD second pass' : null,
     }
   }
