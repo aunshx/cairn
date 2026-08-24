@@ -105,25 +105,31 @@ export function Header({
 
             <SaveStatus state={saveState} onOpenSettings={onOpenSettings} />
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <ThemeToggle />
+
               <button
                 type="button"
                 onClick={onOpenSettings}
-                title={email}
+                title={`Signed in as ${email} — open settings`}
                 aria-label={`Signed in as ${email}. Open settings`}
-                className="flex size-9 items-center justify-center rounded-full border border-rule bg-panel-2 font-mono text-[12px] uppercase text-muted transition-colors hover:border-signal/50 hover:text-signal"
+                className="flex items-center gap-2 rounded-full border border-rule bg-panel-2 py-1 pr-1 pl-1 transition-colors hover:border-signal/50 sm:pr-3"
               >
-                {email.slice(0, 1) || '?'}
+                <span className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-signal to-accent font-mono text-[12px] font-semibold uppercase text-ground">
+                  {email.slice(0, 1) || '?'}
+                </span>
+                <span className="hidden max-w-32 truncate font-mono text-[11px] text-muted sm:block">
+                  {email}
+                </span>
               </button>
+
               <button
                 type="button"
                 onClick={onSignOut}
                 title="Sign out"
-                aria-label="Sign out"
-                className="flex size-9 items-center justify-center rounded-full border border-transparent text-dim transition-colors hover:border-bad/40 hover:bg-bad/10 hover:text-bad"
+                className="flex items-center gap-2 rounded-full border border-rule bg-panel-2 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted transition-colors hover:border-bad/50 hover:bg-bad/10 hover:text-bad"
               >
-                <svg viewBox="0 0 20 20" aria-hidden="true" className="size-4">
+                <svg viewBox="0 0 20 20" aria-hidden="true" className="size-4 shrink-0">
                   <path
                     d="M12 3H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h7"
                     fill="none"
@@ -140,12 +146,13 @@ export function Header({
                     strokeLinejoin="round"
                   />
                 </svg>
+                <span className="hidden sm:inline">Sign out</span>
               </button>
             </div>
           </div>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 overflow-x-auto pb-1">
           <DayStrip state={state} onJump={onJump} />
         </div>
 
