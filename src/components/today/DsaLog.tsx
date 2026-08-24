@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { addDsa, removeDsa, toggleDsaFlag, useTracker } from '../../hooks/useTracker'
+import { NEETCODE_250 } from '../../lib/neetcode'
 import type { DayRecord } from '../../lib/types'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
@@ -30,6 +31,7 @@ export function DsaLog({ day, record }: DsaLogProps) {
     >
       <div className="flex gap-2 border-b border-rule/70 p-4 sm:p-5">
         <input
+          list="neetcode-250"
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => {
@@ -38,20 +40,27 @@ export function DsaLog({ day, record }: DsaLogProps) {
               add()
             }
           }}
-          placeholder="Problem name or NeetCode / LeetCode URL"
+          placeholder="Start typing a NeetCode problem, or paste a URL"
           aria-label="Problem name or URL"
           className="field min-w-0 flex-1 text-[13px]"
         />
         <Button onClick={add} disabled={!name.trim()}>
           Add
         </Button>
+        <datalist id="neetcode-250">
+          {NEETCODE_250.map((p) => (
+            <option key={p.name} value={p.name}>
+              {p.category} · {p.difficulty}
+            </option>
+          ))}
+        </datalist>
       </div>
 
       {record.dsa.length === 0 ? (
         <div className="p-4 sm:p-5">
           <EmptyState
             title="Nothing logged today"
-            body="Paste a NeetCode or LeetCode URL and the title is read off the link, or just type a name. Flag the ones you did not get cleanly — flagging schedules a redo at +3, +10 and +30 days."
+            body="Start typing and the NeetCode 250 filters as you go, or paste a problem URL and the title is read off the link. Anything you log from the list is ticked off in the DSA catalog. Flag the ones you did not get cleanly — flagging schedules a redo at +3, +10 and +30 days."
           />
         </div>
       ) : (
@@ -76,6 +85,11 @@ export function DsaLog({ day, record }: DsaLogProps) {
                 </a>
               ) : (
                 <span className="min-w-0 flex-1 truncate text-[13px] text-ink">{entry.name}</span>
+              )}
+              {entry.nc !== undefined && NEETCODE_250[entry.nc] && (
+                <span className="hidden shrink-0 rounded-full border border-rule bg-panel-2/60 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.1em] text-dim sm:block">
+                  {NEETCODE_250[entry.nc]?.category}
+                </span>
               )}
               <Button
                 size="sm"

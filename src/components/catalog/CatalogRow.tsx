@@ -44,7 +44,20 @@ export function CatalogRow({ catalog, index, item }: CatalogRowProps) {
           >
             <span className={`text-[14px] leading-snug ${done ? 'text-muted' : 'text-ink'}`}>{item.name}</span>
           </button>
-          {item.measure && <p className="mt-0.5 text-[12px] leading-snug text-muted">{item.measure}</p>}
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-2">
+            {item.measure && <span className="text-[12px] leading-snug text-muted">{item.measure}</span>}
+            {item.url && (
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noreferrer noopener"
+                onClick={(e) => e.stopPropagation()}
+                className="font-mono text-[10px] uppercase tracking-[0.1em] text-dim underline-offset-4 transition-colors hover:text-signal hover:underline"
+              >
+                Open
+              </a>
+            )}
+          </div>
         </div>
 
         {result && (

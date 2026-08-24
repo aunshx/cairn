@@ -1,4 +1,4 @@
-export type CatalogKey = 'hld' | 'lld' | 'gfe' | 'mech' | 'beh'
+export type CatalogKey = 'hld' | 'lld' | 'gfe' | 'mech' | 'beh' | 'dsa'
 
 export type DayType = 'A' | 'B' | 'M'
 
@@ -7,6 +7,7 @@ export type DsaEntry = {
   flag: boolean
   solved: boolean
   url?: string
+  nc?: number
 }
 
 export type Redo = {
@@ -43,6 +44,7 @@ export type TrackerState = {
   gfe: Record<string, boolean>
   mech: Record<string, boolean>
   beh: Record<string, boolean>
+  dsa: Record<string, boolean>
   mechResults: Record<number, string>
   notes: Record<string, string>
   deltas: Delta[]
@@ -144,6 +146,7 @@ export function emptyState(): TrackerState {
     gfe: {},
     mech: {},
     beh: {},
+    dsa: {},
     mechResults: {},
     notes: {},
     deltas: [],
@@ -161,7 +164,9 @@ function validateDay(v: unknown): DayRecord {
       .filter(isRecord)
       .map((e) => {
         const url = typeof e.url === 'string' && e.url !== '' ? { url: e.url } : {}
-        return { name: str(e.name), flag: bool(e.flag), solved: bool(e.solved), ...url }
+        const nc =
+          typeof e.nc === 'number' && Number.isInteger(e.nc) && e.nc >= 0 ? { nc: e.nc } : {}
+        return { name: str(e.name), flag: bool(e.flag), solved: bool(e.solved), ...url, ...nc }
       })
       .filter((e) => e.name !== ''),
     notes: strMap(v.notes),
@@ -196,6 +201,7 @@ export function validateState(raw: unknown): TrackerState {
     gfe: boolMap(raw.gfe),
     mech: boolMap(raw.mech),
     beh: boolMap(raw.beh),
+    dsa: boolMap(raw.dsa),
     mechResults: indexedStrMap(raw.mechResults),
     notes: strMap(raw.notes),
     deltas: arr(raw.deltas)

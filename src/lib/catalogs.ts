@@ -1,9 +1,11 @@
+import { NEETCODE_250 } from './neetcode'
 import type { CatalogKey } from './types'
 
 export type CatalogItem = {
   name: string
   tag: string
   measure?: string
+  url?: string
 }
 
 export type Catalog = {
@@ -156,15 +158,23 @@ const BEH: CatalogItem[] = [
   { name: 'Why this company', tag: 'story' },
 ]
 
+const DSA: CatalogItem[] = NEETCODE_250.map((p) => ({
+  name: p.name,
+  tag: p.category,
+  measure: p.difficulty,
+  url: p.url,
+}))
+
 export const CATALOGS: Record<CatalogKey, Catalog> = {
   hld: { key: 'hld', label: 'High level design', short: 'HLD', tagLabel: 'Read first', items: HLD },
   lld: { key: 'lld', label: 'Low level design', short: 'LLD', tagLabel: 'Source', items: LLD },
   gfe: { key: 'gfe', label: 'Frontend components', short: 'GFE', tagLabel: 'Concept', items: GFE },
   mech: { key: 'mech', label: 'Mechanisms', short: 'Mechanisms', tagLabel: 'Ties to', items: MECH },
   beh: { key: 'beh', label: 'Behavioral', short: 'Behavioral', tagLabel: 'Kind', items: BEH },
+  dsa: { key: 'dsa', label: 'NeetCode 250', short: 'DSA', tagLabel: 'Pattern', items: DSA },
 }
 
-export const CATALOG_ORDER: CatalogKey[] = ['hld', 'lld', 'gfe', 'mech', 'beh']
+export const CATALOG_ORDER: CatalogKey[] = ['dsa', 'hld', 'lld', 'gfe', 'mech', 'beh']
 
 export function catalogSize(key: CatalogKey): number {
   return CATALOGS[key].items.length

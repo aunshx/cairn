@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { decodePick } from '../lib/catalogs'
+import { findNeetcodeBySlug, findNeetcodeIndex, NEETCODE_250 } from '../lib/neetcode'
 import { parseProblemInput } from '../lib/problems'
 import { getSupabase, TRACKER_TABLE } from '../lib/supabase'
 import {
@@ -355,10 +356,20 @@ export const addDsa =
   (state) => {
     const parsed = parseProblemInput(raw)
     if (!parsed.name) return state
-    const entry: DsaEntry = parsed.url
-      ? { name: parsed.name, flag: false, solved: true, url: parsed.url }
-      : { name: parsed.name, flag: false, solved: true }
-    return withDay(state, day, (record) => ({ ...record, dsa: [...record.dsa, entry] }))
+
+    const nc = (parsed.slug ? findNeetcodeBySlug(parsed.slug) : null) ?? findNeetcodeIndex(parsed.name)
+    const listed = nc === null ? null : NEETCODE_250[nc]
+
+    const entry: DsaEntry = {
+      name: listed ? listed.name : parsed.name,
+      flag: false,
+      solved: true,
+      ...(parsed.url ?? listed?.url ? { url: parsed.url ?? listed?.url } : {}),
+      ...(nc === null ? {} : { nc }),
+    }
+
+    const withEntry = withDay(state, day, (record) => ({ ...record, dsa: [...record.dsa, entry] }))
+    return nc === null ? withEntry : setCatalog('dsa', nc, true)(withEntry)
   }
 
 export const removeDsa =
