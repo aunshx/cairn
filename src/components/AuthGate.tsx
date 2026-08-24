@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import type { Auth } from '../hooks/useAuth'
+import { signupCodeRequired, type Auth } from '../hooks/useAuth'
 import { Button } from './ui/Button'
 
 type AuthGateProps = {
@@ -13,6 +13,7 @@ export function AuthGate({ auth, heldWork = false }: AuthGateProps) {
   const [mode, setMode] = useState<'in' | 'up'>('in')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [code, setCode] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -36,9 +37,15 @@ export function AuthGate({ auth, heldWork = false }: AuthGateProps) {
       setError('Password is too short. Use at least 6 characters.')
       return
     }
+    if (creating && signupCodeRequired && !code.trim()) {
+      setError('This instance is private. Enter the access code to create an account.')
+      return
+    }
 
     setBusy(true)
-    const result = creating ? await auth.signUp(email, password) : await auth.signIn(email, password)
+    const result = creating
+      ? await auth.signUp(email, password, code)
+      : await auth.signIn(email, password)
     setBusy(false)
     setError(result.error)
     setNotice(result.notice)
@@ -93,6 +100,25 @@ export function AuthGate({ auth, heldWork = false }: AuthGateProps) {
               />
             </div>
 
+            {creating && signupCodeRequired && (
+              <div>
+                <label htmlFor="code" className="micro mb-1.5 block">
+                  Access code
+                </label>
+                <input
+                  id="code"
+                  type="text"
+                  autoComplete="off"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className={`${FIELD} font-mono`}
+                />
+                <p className="mt-1.5 text-[11px] leading-snug text-dim">
+                  This instance is private. Accounts can only be created with the owner's code.
+                </p>
+              </div>
+            )}
+
             {error && (
               <p role="alert" className="rounded-lg border border-bad/40 bg-bad/10 px-3 py-2.5 text-[12px] leading-relaxed text-bad">
                 {error}
@@ -120,7 +146,7 @@ export function AuthGate({ auth, heldWork = false }: AuthGateProps) {
               }}
               className="font-mono text-[11px] text-muted underline-offset-4 hover:text-signal hover:underline"
             >
-              {creating ? 'Already have an account? Sign in' : 'No account yet? Create one'}
+              {creating ? 'Already have an account? Sign in' : 'Have an access code? Create an account'}
             </button>
           </div>
         </form>

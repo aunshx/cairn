@@ -23,4 +23,8 @@ export function getSupabase(): SupabaseClient {
   return client
 }
 
+export const SIGNUP_CODE = import.meta.env.VITE_SIGNUP_CODE ?? ''
+
+export const signupCodeRequired = SIGNUP_CODE !== ''
+
 export const TRACKER_TABLE = 'tracker'

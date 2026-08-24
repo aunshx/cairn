@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
-import { getSupabase } from '../lib/supabase'
+import { getSupabase, SIGNUP_CODE, signupCodeRequired } from '../lib/supabase'
+
+export { signupCodeRequired }
 
 export type AuthResult = { error: string | null; notice: string | null }
 
@@ -9,7 +11,7 @@ export type Auth = {
   user: User | null
   loading: boolean
   signIn: (email: string, password: string) => Promise<AuthResult>
-  signUp: (email: string, password: string) => Promise<AuthResult>
+  signUp: (email: string, password: string, code: string) => Promise<AuthResult>
   signOut: () => Promise<void>
 }
 
@@ -33,8 +35,11 @@ export function authErrorMessage(raw: string, status?: number): string {
   if (m.includes('unable to validate email') || m.includes('invalid email')) {
     return 'That does not look like a valid email address.'
   }
+  if (m.includes('signup code')) {
+    return 'That access code is not valid. This instance only accepts a code issued by its owner.'
+  }
   if (m.includes('signups not allowed') || m.includes('signup is disabled')) {
-    return 'Sign-ups are disabled on this Supabase project. Enable them in Authentication → Sign In / Providers.'
+    return 'Sign-ups are turned off on this Supabase project, so no new accounts can be created.'
   }
   if (m.includes('email rate limit') || status === 429) {
     return 'Too many attempts in a short window. Wait a minute and try again.'
@@ -85,17 +90,25 @@ export function useAuth(): Auth {
     return OK
   }, [])
 
-  const signUp = useCallback(async (email: string, password: string): Promise<AuthResult> => {
-    const { data, error } = await getSupabase().auth.signUp({ email: email.trim(), password })
-    if (error) return { error: authErrorMessage(error.message, error.status), notice: null }
-    if (!data.session) {
-      return {
-        error: null,
-        notice: 'Account created. Confirm the email we sent, then sign in.',
+  const signUp = useCallback(
+    async (email: string, password: string, code: string): Promise<AuthResult> => {
+      if (SIGNUP_CODE && code.trim() !== SIGNUP_CODE) {
+        return { error: 'That access code is not valid.', notice: null }
       }
-    }
-    return OK
-  }, [])
+
+      const { data, error } = await getSupabase().auth.signUp({
+        email: email.trim(),
+        password,
+        options: { data: { signup_code: code.trim() } },
+      })
+      if (error) return { error: authErrorMessage(error.message, error.status), notice: null }
+      if (!data.session) {
+        return { error: null, notice: 'Account created. Confirm the email we sent, then sign in.' }
+      }
+      return OK
+    },
+    [],
+  )
 
   const signOut = useCallback(async () => {
     await getSupabase().auth.signOut()
