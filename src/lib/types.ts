@@ -59,6 +59,8 @@ export const MOCK_TARGET = 12
 
 export const APPS_TARGET = 108
 
+export const MECH_TARGET = 9
+
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
 }

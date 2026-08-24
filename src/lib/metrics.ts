@@ -1,8 +1,9 @@
 import { CATALOGS, countDone } from './catalogs'
-import { ALL_DAYS, dayType, tasksFor, type Task } from './schedule'
+import { ALL_DAYS, dayType, isMechanismDay, tasksFor, type Task } from './schedule'
 import {
   APPS_TARGET,
   DSA_TARGET,
+  MECH_TARGET,
   MOCK_TARGET,
   TOTAL_DAYS,
   emptyDay,
@@ -16,7 +17,7 @@ import {
 
 export type TrackKey = CatalogKey | 'dsa' | 'apps' | 'mock'
 
-export const TRACK_ORDER: TrackKey[] = ['hld', 'lld', 'gfe', 'beh', 'dsa', 'apps', 'mock']
+export const TRACK_ORDER: TrackKey[] = ['hld', 'lld', 'gfe', 'mech', 'beh', 'dsa', 'apps', 'mock']
 
 export const TRACK_LABEL: Record<TrackKey, string> = {
   hld: 'HLD',
@@ -122,6 +123,7 @@ const FIXED_TARGET: Partial<Record<TrackKey, number>> = {
   dsa: DSA_TARGET,
   apps: APPS_TARGET,
   mock: MOCK_TARGET,
+  mech: MECH_TARGET,
 }
 
 export function mockCount(record: DayRecord): number {
@@ -152,6 +154,7 @@ function trackDoneOnDay(state: TrackerState, track: TrackKey, day: number): numb
   if (track === 'apps') return record.n.apps ?? 0
   if (track === 'mock') return type === 'M' ? mockCount(record) : 0
   if (track === 'beh') return isDone(record, 'beh') ? 1 : 0
+  if (track === 'mech') return isMechanismDay(day) && isDone(record, 'build') ? 1 : 0
   if (track === 'gfe') return type === 'A' && isDone(record, 'gfe') ? 1 : 0
   if (track === 'hld') return isDone(record, 'design') ? 1 : 0
   return type === 'B' && isDone(record, 'lld') ? 1 : 0
