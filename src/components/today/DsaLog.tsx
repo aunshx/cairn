@@ -38,8 +38,8 @@ export function DsaLog({ day, record }: DsaLogProps) {
               add()
             }
           }}
-          placeholder="Problem name"
-          aria-label="Problem name"
+          placeholder="Problem name or NeetCode / LeetCode URL"
+          aria-label="Problem name or URL"
           className="field min-w-0 flex-1 text-[13px]"
         />
         <Button onClick={add} disabled={!name.trim()}>
@@ -51,7 +51,7 @@ export function DsaLog({ day, record }: DsaLogProps) {
         <div className="p-4 sm:p-5">
           <EmptyState
             title="Nothing logged today"
-            body="Name each problem as you finish it. Flag the ones you did not get cleanly — flagging schedules a redo at +3, +10 and +30 days."
+            body="Paste a NeetCode or LeetCode URL and the title is read off the link, or just type a name. Flag the ones you did not get cleanly — flagging schedules a redo at +3, +10 and +30 days."
           />
         </div>
       ) : (
@@ -64,7 +64,19 @@ export function DsaLog({ day, record }: DsaLogProps) {
               <span className="font-mono text-[10px] tabular-nums text-dim">
                 {String(index + 1).padStart(2, '0')}
               </span>
-              <span className="min-w-0 flex-1 truncate text-[13px] text-ink">{entry.name}</span>
+              {entry.url ? (
+                <a
+                  href={entry.url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  title={entry.url}
+                  className="min-w-0 flex-1 truncate text-[13px] text-ink underline decoration-rule underline-offset-4 transition-colors hover:text-signal hover:decoration-signal"
+                >
+                  {entry.name}
+                </a>
+              ) : (
+                <span className="min-w-0 flex-1 truncate text-[13px] text-ink">{entry.name}</span>
+              )}
               <Button
                 size="sm"
                 variant={entry.flag ? 'default' : 'ghost'}

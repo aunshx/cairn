@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { parseProblemInput } from '../lib/problems'
 import { getSupabase, TRACKER_TABLE } from '../lib/supabase'
 import {
   emptyDay,
@@ -7,6 +8,7 @@ import {
   type CatalogKey,
   type DayRecord,
   type Delta,
+  type DsaEntry,
   type Redo,
   type SaveState,
   type TrackerState,
@@ -332,14 +334,14 @@ export const setFinished =
     }))
 
 export const addDsa =
-  (day: number, name: string): Recipe =>
+  (day: number, raw: string): Recipe =>
   (state) => {
-    const trimmed = name.trim()
-    if (!trimmed) return state
-    return withDay(state, day, (record) => ({
-      ...record,
-      dsa: [...record.dsa, { name: trimmed, flag: false, solved: true }],
-    }))
+    const parsed = parseProblemInput(raw)
+    if (!parsed.name) return state
+    const entry: DsaEntry = parsed.url
+      ? { name: parsed.name, flag: false, solved: true, url: parsed.url }
+      : { name: parsed.name, flag: false, solved: true }
+    return withDay(state, day, (record) => ({ ...record, dsa: [...record.dsa, entry] }))
   }
 
 export const removeDsa =

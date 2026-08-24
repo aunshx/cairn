@@ -6,6 +6,7 @@ export type DsaEntry = {
   name: string
   flag: boolean
   solved: boolean
+  url?: string
 }
 
 export type Redo = {
@@ -157,7 +158,10 @@ function validateDay(v: unknown): DayRecord {
     n: numMap(v.n),
     dsa: arr(v.dsa)
       .filter(isRecord)
-      .map((e) => ({ name: str(e.name), flag: bool(e.flag), solved: bool(e.solved) }))
+      .map((e) => {
+        const url = typeof e.url === 'string' && e.url !== '' ? { url: e.url } : {}
+        return { name: str(e.name), flag: bool(e.flag), solved: bool(e.solved), ...url }
+      })
       .filter((e) => e.name !== ''),
     notes: strMap(v.notes),
     note: str(v.note),
