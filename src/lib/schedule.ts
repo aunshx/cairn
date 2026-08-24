@@ -1,4 +1,5 @@
-import type { CatalogKey, DayType } from './types'
+import { nextUnchecked, noteKey, type CatalogItem } from './catalogs'
+import type { CatalogKey, DayType, TrackerState } from './types'
 import { TOTAL_DAYS } from './types'
 
 export type TaskCatalog = 'design' | CatalogKey
@@ -26,7 +27,7 @@ export function dayType(day: number): DayType {
 
 export function dayTypeLabel(type: DayType): string {
   if (type === 'A') return 'A · HLD'
-  if (type === 'B') return 'B · LLD'
+  if (type === 'B') return 'B · HLD'
   return 'M · Mock'
 }
 
@@ -93,7 +94,7 @@ const DAY_B: Session[] = [
     range: '05:30 – 11:00',
     tasks: [
       { id: 'dsa1', label: '4 DSA', sub: '25-min cap each', time: '06:45', cap: 4 },
-      { id: 'design', label: 'LLD problem', sub: LLD_SUB, time: '07:15', catalog: 'design' },
+      { id: 'design', label: 'HLD problem', sub: DESIGN_SUB, time: '07:15', catalog: 'design' },
       { id: 'dsa2', label: '3 DSA', sub: 'interleaved, not slabbed', time: '08:35', cap: 3 },
       {
         id: 'read',
@@ -151,10 +152,37 @@ export function tasksFor(type: DayType): Task[] {
   return sessionsFor(type).flatMap((s) => s.tasks)
 }
 
-export function catalogFor(task: Task, type: DayType): CatalogKey | null {
-  if (!task.catalog) return null
-  if (task.catalog !== 'design') return task.catalog
-  return type === 'B' ? 'lld' : 'hld'
+export type SlotResolution = {
+  catalog: CatalogKey
+  index: number
+  item: CatalogItem
+  relabel: string | null
+}
+
+const DESIGN_FALLBACK: { key: CatalogKey; relabel: string | null }[] = [
+  { key: 'hld', relabel: null },
+  { key: 'lld', relabel: 'LLD second pass' },
+]
+
+export function resolveDaySlots(type: DayType, state: TrackerState): Record<string, SlotResolution> {
+  const claimed = new Set<string>()
+  const out: Record<string, SlotResolution> = {}
+
+  for (const task of tasksFor(type)) {
+    if (!task.catalog) continue
+    const order =
+      task.catalog === 'design' ? DESIGN_FALLBACK : [{ key: task.catalog, relabel: null }]
+
+    for (const { key, relabel } of order) {
+      const found = nextUnchecked(key, state[key], claimed)
+      if (!found) continue
+      claimed.add(noteKey(key, found.index))
+      out[task.id] = { catalog: key, index: found.index, item: found.item, relabel }
+      break
+    }
+  }
+
+  return out
 }
 
 export function parseIso(iso: string): Date {

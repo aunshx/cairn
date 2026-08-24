@@ -132,11 +132,14 @@ export function noteKey(key: CatalogKey, index: number): string {
 export function nextUnchecked(
   key: CatalogKey,
   checked: Record<string, boolean>,
+  claimed?: ReadonlySet<string>,
 ): { index: number; item: CatalogItem } | null {
   const items = CATALOGS[key].items
   for (let i = 0; i < items.length; i += 1) {
     const item = items[i]
-    if (item && !checked[String(i)]) return { index: i, item }
+    if (!item || checked[String(i)]) continue
+    if (claimed?.has(noteKey(key, i))) continue
+    return { index: i, item }
   }
   return null
 }
