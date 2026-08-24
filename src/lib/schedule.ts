@@ -152,6 +152,14 @@ export function tasksFor(type: DayType): Task[] {
   return sessionsFor(type).flatMap((s) => s.tasks)
 }
 
+export function taskById(type: DayType, id: string): Task | null {
+  return tasksFor(type).find((t) => t.id === id) ?? null
+}
+
+export function capFor(type: DayType, id: string): number | null {
+  return taskById(type, id)?.cap ?? null
+}
+
 export type SlotResolution = {
   catalog: CatalogKey
   index: number
