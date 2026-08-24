@@ -79,7 +79,12 @@ export type TrackerState = {
   deltas: Delta[]
   redos: Redo[]
   applications: Application[]
+  theme: Theme
 }
+
+export const THEMES = ['system', 'light', 'dark'] as const
+
+export type Theme = (typeof THEMES)[number]
 
 export type SaveState = 'saved' | 'unsaved' | 'saving' | 'failed'
 
@@ -182,6 +187,7 @@ export function emptyState(): TrackerState {
     deltas: [],
     redos: [],
     applications: [],
+    theme: 'system',
   }
 }
 
@@ -265,5 +271,8 @@ export function validateState(raw: unknown): TrackerState {
         }
       })
       .filter((a) => a.company !== ''),
+    theme: (THEMES as readonly string[]).includes(str(raw.theme))
+      ? (str(raw.theme) as Theme)
+      : 'system',
   }
 }

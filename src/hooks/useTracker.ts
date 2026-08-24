@@ -15,6 +15,7 @@ import {
   type DsaEntry,
   type Redo,
   type SaveState,
+  type Theme,
   type TrackerState,
 } from '../lib/types'
 
@@ -498,6 +499,10 @@ export const setCatalogNote =
 export const setMechResult =
   (index: number, value: string): Recipe =>
   (state) => ({ ...state, mechResults: { ...state.mechResults, [index]: value } })
+
+export const setTheme =
+  (theme: Theme): Recipe =>
+  (state) => ({ ...state, theme })
 
 export const setStart =
   (start: string): Recipe =>

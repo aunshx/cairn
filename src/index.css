@@ -16,6 +16,11 @@
   --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
+  --shadow-surface:
+    0 1px 0 0 color-mix(in srgb, white 5%, transparent) inset,
+    0 18px 40px -24px rgb(0 0 0 / 0.85);
+  --glow-strength: 12%;
+
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
@@ -50,9 +55,21 @@
     z-index: -1;
     pointer-events: none;
     background:
-      radial-gradient(60rem 40rem at 12% -10%, color-mix(in srgb, var(--color-signal) 12%, transparent), transparent 70%),
-      radial-gradient(50rem 36rem at 92% 4%, color-mix(in srgb, var(--color-accent) 14%, transparent), transparent 70%),
-      radial-gradient(70rem 50rem at 50% 110%, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 70%);
+      radial-gradient(
+        60rem 40rem at 12% -10%,
+        color-mix(in srgb, var(--color-signal) var(--glow-strength), transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        50rem 36rem at 92% 4%,
+        color-mix(in srgb, var(--color-accent) var(--glow-strength), transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        70rem 50rem at 50% 110%,
+        color-mix(in srgb, var(--color-accent) calc(var(--glow-strength) / 2), transparent),
+        transparent 70%
+      );
   }
 
   input,
@@ -115,9 +132,7 @@
       var(--color-panel);
     border: 1px solid color-mix(in srgb, var(--color-rule) 85%, transparent);
     border-radius: var(--radius-lg);
-    box-shadow:
-      0 1px 0 0 color-mix(in srgb, white 5%, transparent) inset,
-      0 18px 40px -24px rgb(0 0 0 / 0.85);
+    box-shadow: var(--shadow-surface);
   }
 
   .field {
@@ -154,5 +169,62 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@layer base {
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme='dark']) {
+      color-scheme: light;
+      --color-ground: #f4f7fb;
+      --color-panel: #ffffff;
+      --color-panel-2: #eef2f8;
+      --color-rule: #d5dee9;
+      --color-ink: #14202e;
+      --color-muted: #51647c;
+      --color-dim: #7b8ca1;
+      --color-signal: #0e9384;
+      --color-accent: #4f46e5;
+      --color-flag: #b45309;
+      --color-bad: #be123c;
+      --shadow-surface: 0 1px 2px 0 rgb(16 32 46 / 0.05), 0 8px 24px -16px rgb(16 32 46 / 0.18);
+      --glow-strength: 7%;
+    }
+  }
+
+  :root[data-theme='light'] {
+    color-scheme: light;
+      --color-ground: #f4f7fb;
+      --color-panel: #ffffff;
+      --color-panel-2: #eef2f8;
+      --color-rule: #d5dee9;
+      --color-ink: #14202e;
+      --color-muted: #51647c;
+      --color-dim: #7b8ca1;
+      --color-signal: #0e9384;
+      --color-accent: #4f46e5;
+      --color-flag: #b45309;
+      --color-bad: #be123c;
+      --shadow-surface: 0 1px 2px 0 rgb(16 32 46 / 0.05), 0 8px 24px -16px rgb(16 32 46 / 0.18);
+      --glow-strength: 7%;
+  }
+
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+      --color-ground: #090d15;
+      --color-panel: #131a27;
+      --color-panel-2: #1b2433;
+      --color-rule: #273246;
+      --color-ink: #e9eef6;
+      --color-muted: #90a0b4;
+      --color-dim: #5d6e84;
+      --color-signal: #5eead4;
+      --color-accent: #818cf8;
+      --color-flag: #fbbf24;
+      --color-bad: #fb7185;
+      --shadow-surface:
+        0 1px 0 0 color-mix(in srgb, white 5%, transparent) inset,
+        0 18px 40px -24px rgb(0 0 0 / 0.85);
+      --glow-strength: 12%;
   }
 }

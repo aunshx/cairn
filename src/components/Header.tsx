@@ -3,6 +3,7 @@ import { dayCompletion, finishedDays } from '../lib/metrics'
 import { TOTAL_DAYS, type DayType, type SaveState, type TrackerState, type ViewKey } from '../lib/types'
 import { DayStrip } from './DayStrip'
 import { SaveStatus } from './SaveStatus'
+import { ThemeToggle } from './ThemeToggle'
 import { Tabs } from './ui/Tabs'
 
 const VIEWS = [
@@ -105,6 +106,7 @@ export function Header({
             <SaveStatus state={saveState} onOpenSettings={onOpenSettings} />
 
             <div className="flex items-center gap-1">
+              <ThemeToggle />
               <button
                 type="button"
                 onClick={onOpenSettings}
