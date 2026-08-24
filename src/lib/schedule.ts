@@ -27,7 +27,7 @@ export function dayType(day: number): DayType {
 
 export function dayTypeLabel(type: DayType): string {
   if (type === 'A') return 'A · HLD'
-  if (type === 'B') return 'B · HLD'
+  if (type === 'B') return 'B · HLD + LLD'
   return 'M · Mock'
 }
 
@@ -93,15 +93,10 @@ const DAY_B: Session[] = [
     title: 'Session 1',
     range: '05:30 – 11:00',
     tasks: [
-      { id: 'dsa1', label: '4 DSA', sub: '25-min cap each', time: '06:45', cap: 4 },
+      { id: 'dsa1', label: '3 DSA', sub: '25-min cap each', time: '06:45', cap: 3 },
       { id: 'design', label: 'HLD problem', sub: DESIGN_SUB, time: '07:15', catalog: 'design' },
-      { id: 'dsa2', label: '3 DSA', sub: 'interleaved, not slabbed', time: '08:35', cap: 3 },
-      {
-        id: 'read',
-        label: 'Read 1 Key Tech page + blank-page recall',
-        sub: 'close it, write what you remember',
-        time: '09:55',
-      },
+      { id: 'dsa2', label: '2 DSA', time: '08:35', cap: 2 },
+      { id: 'lld', label: 'LLD problem', sub: LLD_SUB, time: '09:25', catalog: 'lld' },
     ],
   },
   BREAK_GYM,
@@ -111,7 +106,12 @@ const DAY_B: Session[] = [
     tasks: [
       { id: 'build', label: 'Agentic build, hard 2h cap', time: '13:00' },
       { id: 'apps', label: '3 applications', time: '15:00', cap: 3 },
-      { id: 'build2', label: 'Second build hour or overflow', time: '16:00' },
+      {
+        id: 'read',
+        label: 'Read 1 Key Tech page + blank-page recall',
+        sub: 'close it, write what you remember',
+        time: '16:00',
+      },
     ],
   },
   EVENING_AB,
