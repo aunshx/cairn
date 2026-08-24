@@ -1,6 +1,6 @@
 import { dayType, dayTypeLabel, formatDayDate } from '../lib/schedule'
 import { dayCompletion, finishedDays } from '../lib/metrics'
-import { TOTAL_DAYS, type DayType, type SaveState, type TrackerState, type ViewKey } from '../lib/types'
+import type { DayType, SaveState, TrackerState, ViewKey } from '../lib/types'
 import { DayStrip } from './DayStrip'
 import { SaveStatus } from './SaveStatus'
 import { ThemeToggle } from './ThemeToggle'
@@ -87,7 +87,7 @@ export function Header({
   onOpenSettings,
   onSignOut,
 }: HeaderProps) {
-  const type = dayType(state.day)
+  const type = dayType(state.day, state.cycle)
   const finished = finishedDays(state).length
   const today = dayCompletion(state, state.day)
 
@@ -110,7 +110,7 @@ export function Header({
               <button
                 type="button"
                 className={STEP}
-                disabled={state.day >= TOTAL_DAYS}
+                disabled={state.day >= state.totalDays}
                 onClick={() => onJump(state.day + 1)}
                 aria-label="Next day"
                 title="Next day (→)"
@@ -121,7 +121,7 @@ export function Header({
 
             <p className="accent-text font-mono text-[38px] leading-none font-semibold tracking-tight sm:text-[46px]">
               {String(state.day).padStart(2, '0')}
-              <span className="text-dim opacity-60">/{TOTAL_DAYS}</span>
+              <span className="text-dim opacity-60">/{state.totalDays}</span>
             </p>
             <div className="space-y-1.5">
               <span
@@ -139,7 +139,7 @@ export function Header({
               <div className="leading-tight">
                 <p className="micro">Today</p>
                 <p className="font-mono text-[11px] text-muted">
-                  {finished} of {TOTAL_DAYS} closed
+                  {finished} of {state.totalDays} closed
                 </p>
               </div>
             </div>
@@ -159,8 +159,8 @@ export function Header({
                 <span className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-signal to-accent font-mono text-[12px] font-semibold uppercase text-ground">
                   {email.slice(0, 1) || '?'}
                 </span>
-                <span className="hidden max-w-32 truncate font-mono text-[11px] text-muted sm:block">
-                  {email}
+                <span className="hidden font-mono text-[11px] tracking-[0.08em] text-muted uppercase sm:block">
+                  Account
                 </span>
               </button>
 

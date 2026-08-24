@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { goToDay, useTracker } from '../hooks/useTracker'
-import { TOTAL_DAYS, type ViewKey } from '../lib/types'
+import type { ViewKey } from '../lib/types'
 import { CatalogView } from './catalog/CatalogView'
 import { Header } from './Header'
 import { MetricsView } from './metrics/MetricsView'
@@ -18,7 +18,7 @@ export function AppShell({ email, onSignOut }: AppShellProps) {
   const [settingsOpen, setSettingsOpen] = useState(false)
 
   function jump(day: number) {
-    update(goToDay(Math.min(TOTAL_DAYS, Math.max(1, day))))
+    update(goToDay(Math.min(state.totalDays, Math.max(1, day))))
     setView('today')
   }
 

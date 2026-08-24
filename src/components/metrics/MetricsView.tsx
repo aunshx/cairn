@@ -10,9 +10,10 @@ import {
   missedTasks,
   mocksCompleted,
   percent,
+  planTargets,
   worstProjection,
 } from '../../lib/metrics'
-import { APPS_TARGET, MOCK_TARGET, TOTAL_DAYS } from '../../lib/types'
+
 import { ApplicationFunnel } from './ApplicationFunnel'
 import { BurnUpChart } from './BurnUpChart'
 import { GymBreakdown } from './GymBreakdown'
@@ -35,6 +36,7 @@ export function MetricsView() {
   const missed = missedTasks(state)
   const apps = applicationStats(state)
   const gym = gymStats(state)
+  const targets = planTargets(state)
   const habits = [
     { id: 'nodrink', label: 'Alcohol-free run' },
     { id: 'nosmoke', label: 'Smoke-free run' },
@@ -103,8 +105,8 @@ export function MetricsView() {
               ? 'Every track has reached its target.'
               : worst.projectedDay === null
                 ? `Nothing logged for ${worst.label} in the last 7 days, so there is no rate to project from.`
-                : worst.projectedDay > TOTAL_DAYS
-                  ? `At the current 7-day rate ${worst.label} lands past day ${TOTAL_DAYS}. It is the track furthest behind.`
+                : worst.projectedDay > state.totalDays
+                  ? `At the current 7-day rate ${worst.label} lands past day ${state.totalDays}. It is the track furthest behind.`
                   : `At the current 7-day rate ${worst.label} is the last track to land, and it lands in time.`
           }
         />
@@ -112,9 +114,9 @@ export function MetricsView() {
         <StatBlock
           label="Mocks completed"
           value={`${mocks}`}
-          detail={`of ${MOCK_TARGET}`}
-          tone={mocks >= MOCK_TARGET ? 'good' : 'neutral'}
-          reading={`Two mocks on each of the ten M days. ${Math.max(0, MOCK_TARGET - mocks)} left to record.`}
+          detail={`of ${targets.mock}`}
+          tone={mocks >= targets.mock ? 'good' : 'neutral'}
+          reading={`Two mocks on every mock day. ${Math.max(0, targets.mock - mocks)} left to record.`}
         />
 
         <StatBlock
@@ -134,7 +136,7 @@ export function MetricsView() {
         <StatBlock
           label="Applications out"
           value={`${apps.total}`}
-          detail={apps.total > 0 ? `${apps.inFlight} in flight` : `of ${APPS_TARGET}`}
+          detail={apps.total > 0 ? `${apps.inFlight} in flight` : `of ${targets.apps}`}
           tone={apps.offers > 0 ? 'good' : 'neutral'}
           reading={
             apps.total === 0

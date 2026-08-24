@@ -1,5 +1,5 @@
 import { gymStats } from '../../lib/metrics'
-import { GYM_ACTIVITIES, TOTAL_DAYS, type TrackerState } from '../../lib/types'
+import { GYM_ACTIVITIES, type TrackerState } from '../../lib/types'
 import { Card } from '../ui/Card'
 import { EmptyState } from '../ui/EmptyState'
 
@@ -58,7 +58,7 @@ export function GymBreakdown({ state }: GymBreakdownProps) {
           </ul>
 
           <p className="mt-4 max-w-prose text-[12px] leading-relaxed text-muted">
-            {stats.sessions} sessions across {stats.daysTrained} of {TOTAL_DAYS} days, averaging{' '}
+            {stats.sessions} sessions across {stats.daysTrained} of {state.totalDays} days, averaging{' '}
             {Math.round(stats.averageMinutes ?? 0)} min. A session with two activities counts once for
             each, and its minutes are split between them.
           </p>

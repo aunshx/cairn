@@ -1,6 +1,6 @@
-import { applicationStats, percent } from '../../lib/metrics'
+import { applicationStats, percent, planTargets } from '../../lib/metrics'
 import { STATUS_BAR } from '../../lib/status'
-import { APPLICATION_STATUSES, APPLICATION_STATUS_LABEL, APPS_TARGET, type TrackerState } from '../../lib/types'
+import { APPLICATION_STATUSES, APPLICATION_STATUS_LABEL, type TrackerState } from '../../lib/types'
 import { Card } from '../ui/Card'
 import { EmptyState } from '../ui/EmptyState'
 
@@ -10,11 +10,12 @@ type ApplicationFunnelProps = {
 
 export function ApplicationFunnel({ state }: ApplicationFunnelProps) {
   const stats = applicationStats(state)
+  const appsTarget = planTargets(state).apps
 
   return (
     <Card
       title="Applications"
-      meta={stats.total > 0 ? `${stats.total} of ${APPS_TARGET} sent` : undefined}
+      meta={stats.total > 0 ? `${stats.total} of ${appsTarget} sent` : undefined}
       actions={
         stats.total > 0 && (
           <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-dim">

@@ -1,6 +1,6 @@
-import { ALL_DAYS, dayForToday, dayType, formatShortDate } from '../lib/schedule'
+import { dayForToday, dayType, daysOf, formatShortDate } from '../lib/schedule'
 import { dayCompletion, dayRecord } from '../lib/metrics'
-import type { TrackerState } from '../lib/types'
+import { planOf, type TrackerState } from '../lib/types'
 
 type DayStripProps = {
   state: TrackerState
@@ -33,12 +33,12 @@ function toneFor(pct: number, finished: boolean, isActive: boolean): Tone {
 }
 
 export function DayStrip({ state, onJump }: DayStripProps) {
-  const today = dayForToday(state.start) ?? state.day
+  const today = dayForToday(planOf(state)) ?? state.day
 
   return (
     <div role="group" aria-label="Jump to day" className="flex min-w-max items-end gap-[3px] sm:min-w-0">
-      {ALL_DAYS.map((day) => {
-        const type = dayType(day)
+      {daysOf(state.totalDays).map((day: number) => {
+        const type = dayType(day, state.cycle)
         const record = dayRecord(state, day)
         const current = day === state.day
         const mock = type === 'M'
