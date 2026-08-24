@@ -11,6 +11,7 @@ export type Task = {
   time?: string
   cap?: number
   catalog?: TaskCatalog
+  pick?: CatalogKey[]
 }
 
 export type Session = {
@@ -40,13 +41,17 @@ const BREAK_GYM: Session = {
   tasks: [{ id: 'gym1', label: 'Weights, 60 min' }],
 }
 
+const BREAK_GYM_2: Session = {
+  title: 'Break + Gym 2',
+  range: '18:00 – 19:00',
+  tasks: [{ id: 'gym2', label: 'Cardio, 45 min' }],
+}
+
 const EVENING_AB: Session = {
   title: 'Evening',
-  range: '18:00 – 21:00',
+  range: '19:00 – 21:00',
   tasks: [
-    { id: 'gym2', label: 'Cardio, 45 min' },
     { id: 'rev', label: 'Revision block', sub: 'logs → 1 DSA redo → blank-page recall', time: '19:45' },
-    { id: 'beh', label: 'Behavioral, 15 min', catalog: 'beh' },
     { id: 'walk', label: 'Walk, 20 min' },
     { id: 'bed', label: 'Screens off 20:30, bed 21:00' },
   ],
@@ -54,9 +59,8 @@ const EVENING_AB: Session = {
 
 const EVENING_M: Session = {
   title: 'Evening',
-  range: '18:00 – 21:00',
+  range: '19:00 – 21:00',
   tasks: [
-    { id: 'gym2', label: 'Cardio, 45 min' },
     { id: 'rev', label: 'Revision block', sub: "blank-page recall on today's HLD", time: '19:45' },
     { id: 'walk', label: 'Walk, 20 min' },
     { id: 'bed', label: 'Screens off 20:30, bed 21:00' },
@@ -82,7 +86,7 @@ const DAY_A: Session[] = [
     range: '05:30 – 11:00',
     tasks: [
       { id: 'dsa1', label: '4 DSA', sub: '25-min cap each', time: '06:45', cap: 4 },
-      { id: 'design', label: 'HLD problem', sub: DESIGN_SUB, time: '07:15', catalog: 'design' },
+      { id: 'design', label: 'HLD problem', sub: DESIGN_SUB, time: '07:15', pick: ['hld', 'lld'] },
       { id: 'dsa2', label: '3 DSA', sub: 'interleaved, not slabbed', time: '08:35', cap: 3 },
       { id: 'quiz', label: '10 GFE quiz', time: '09:55' },
     ],
@@ -94,8 +98,10 @@ const DAY_A: Session[] = [
     tasks: [
       { id: 'gfe', label: 'GFE component, timed 2h', sub: 'no AI, no docs tab', time: '13:00', catalog: 'gfe' },
       { id: 'apps', label: '3 applications', sub: '2 A-tier max, rest assembly', time: '15:00', cap: 3 },
+      { id: 'beh', label: 'Behavioral, 15 min', time: '17:00', catalog: 'beh' },
     ],
   },
+  BREAK_GYM_2,
   EVENING_AB,
 ]
 
@@ -106,9 +112,9 @@ function dayBSessions(build: Task): Session[] {
     range: '05:30 – 11:00',
     tasks: [
       { id: 'dsa1', label: '3 DSA', sub: '25-min cap each', time: '06:45', cap: 3 },
-      { id: 'design', label: 'HLD problem', sub: DESIGN_SUB, time: '07:15', catalog: 'design' },
+      { id: 'design', label: 'HLD problem', sub: DESIGN_SUB, time: '07:15', pick: ['hld', 'lld'] },
       { id: 'dsa2', label: '2 DSA', time: '08:35', cap: 2 },
-      { id: 'lld', label: 'LLD problem', sub: LLD_SUB, time: '09:25', catalog: 'lld' },
+      { id: 'lld', label: 'LLD problem', sub: LLD_SUB, time: '09:25', pick: ['lld'] },
     ],
   },
     BREAK_GYM,
@@ -124,8 +130,10 @@ function dayBSessions(build: Task): Session[] {
           sub: 'close it, write what you remember',
           time: '16:00',
         },
+        { id: 'beh', label: 'Behavioral, 15 min', time: '17:00', catalog: 'beh' },
       ],
     },
+    BREAK_GYM_2,
     EVENING_AB,
   ]
 }
@@ -139,7 +147,7 @@ const DAY_M: Session[] = [
     range: '05:30 – 11:00',
     tasks: [
       { id: 'dsa1', label: '4 DSA', sub: 'redos from the queue first', time: '06:45', cap: 4 },
-      { id: 'design', label: 'HLD problem', sub: DESIGN_SUB, time: '07:15', catalog: 'design' },
+      { id: 'design', label: 'HLD problem', sub: DESIGN_SUB, time: '07:15', pick: ['hld', 'lld'] },
       { id: 'dsa2', label: '3 DSA', time: '08:35', cap: 3 },
       { id: 'logs', label: 'Reread every delta log to date', time: '09:55' },
     ],
@@ -155,6 +163,7 @@ const DAY_M: Session[] = [
       { id: 'li', label: 'Batch 3 LinkedIn posts', sub: 'schedule Mon/Wed/Fri morning', time: '16:00' },
     ],
   },
+  BREAK_GYM_2,
   EVENING_M,
 ]
 
