@@ -9,7 +9,7 @@ export function Footer() {
           ·
         </span>
         <span className="font-mono text-[10px] tracking-[0.12em] text-dim/75 uppercase">
-          &copy; 2026 8W Research.
+          &copy; 2026 8W Research
         </span>
       </div>
     </footer>
