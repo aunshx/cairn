@@ -47,22 +47,30 @@ export function TaskRow({ task, day, record, slot }: TaskRowProps) {
   }
 
   return (
-    <div className={`border-t border-rule/60 first:border-t-0 ${done ? 'bg-signal/[0.03]' : ''}`}>
-      <div className="flex items-start gap-3 px-3 py-2.5 sm:px-4">
+    <div
+      className={`group border-t border-rule/50 transition-colors first:border-t-0 hover:bg-panel-2/40 ${
+        done ? 'bg-signal/[0.04]' : ''
+      }`}
+    >
+      <div className="flex items-start gap-3.5 px-4 py-3 sm:px-5">
         <div className="pt-0.5">
           <Checkbox checked={done} onChange={toggle} label={label} />
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className={`text-[14px] leading-snug ${done ? 'text-muted line-through decoration-rule' : 'text-ink'}`}>
+          <p
+            className={`text-[14px] leading-snug transition-colors ${
+              done ? 'text-muted line-through decoration-rule' : 'text-ink'
+            }`}
+          >
             {label}
           </p>
 
           {slot && (
-            <p className="mt-0.5 font-mono text-[11px] text-signal/90">
-              <span className="text-dim">{String(slot.index + 1).padStart(2, '0')} · </span>
+            <p className="mt-1 inline-flex flex-wrap items-center gap-x-2 rounded-md bg-panel-2/70 px-2 py-0.5 font-mono text-[11px] text-signal">
+              <span className="text-dim">{String(slot.index + 1).padStart(2, '0')}</span>
               {slot.item.name}
-              {slot.item.tag && <span className="text-dim"> · {slot.item.tag}</span>}
+              {slot.item.tag && <span className="text-dim">· {slot.item.tag}</span>}
             </p>
           )}
 
@@ -86,10 +94,10 @@ export function TaskRow({ task, day, record, slot }: TaskRowProps) {
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-label={`${open ? 'Hide' : 'Add'} note for ${label}`}
-            className={`flex size-6 items-center justify-center border transition-colors ${
+            className={`flex size-7 items-center justify-center rounded-md border transition-all ${
               note || (isMech && mechValue)
-                ? 'border-flag/50 text-flag'
-                : 'border-transparent text-dim hover:border-rule hover:text-ink'
+                ? 'border-flag/40 bg-flag/10 text-flag'
+                : 'border-transparent text-dim opacity-60 hover:bg-panel-2 hover:text-ink group-hover:opacity-100'
             }`}
           >
             <PencilIcon />
@@ -98,7 +106,7 @@ export function TaskRow({ task, day, record, slot }: TaskRowProps) {
       </div>
 
       {open && (
-        <div className="space-y-3 border-t border-rule/60 bg-panel-2/40 px-3 py-3 sm:px-4">
+        <div className="space-y-3 border-t border-rule/50 bg-ground/40 px-4 py-4 sm:px-5">
           {isMech && slot && (
             <label className="block">
               <span className="micro mb-1.5 block">The number</span>
@@ -106,7 +114,7 @@ export function TaskRow({ task, day, record, slot }: TaskRowProps) {
                 value={mechValue}
                 onChange={(e) => update(setMechResult(slot.index, e.target.value))}
                 placeholder={slot.item.measure ?? 'what you measured'}
-                className="w-full border border-rule bg-panel-2 px-3 py-1.5 font-mono text-[12px] text-ink outline-none focus:border-signal"
+                className="field font-mono text-[12px]"
               />
             </label>
           )}

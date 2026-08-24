@@ -86,6 +86,20 @@ function windowDays(day: number, span: number, offset = 0): number[] {
   return out
 }
 
+export type Missed = { missed: number; total: number; rate: number | null; days: number }
+
+export function missedTasks(state: TrackerState): Missed {
+  let missed = 0
+  let total = 0
+  const days = finishedDays(state)
+  for (const day of days) {
+    const c = dayCompletion(state, day)
+    missed += c.total - c.done
+    total += c.total
+  }
+  return { missed, total, rate: total === 0 ? null : missed / total, days: days.length }
+}
+
 export type FlagRate = {
   rate: number | null
   previous: number | null

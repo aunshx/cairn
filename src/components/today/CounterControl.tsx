@@ -6,7 +6,7 @@ type CounterControlProps = {
 }
 
 const STEP =
-  'flex size-6 items-center justify-center border border-rule bg-panel-2 font-mono text-[13px] leading-none text-muted transition-colors hover:border-dim hover:text-ink disabled:cursor-not-allowed disabled:opacity-30'
+  'flex size-7 items-center justify-center rounded-md border border-rule bg-panel-2 font-mono text-[14px] leading-none text-muted transition-all hover:border-signal/50 hover:text-signal active:scale-90 disabled:cursor-not-allowed disabled:opacity-25 disabled:active:scale-100'
 
 export function CounterControl({ value, cap, label, onChange }: CounterControlProps) {
   return (
@@ -21,7 +21,7 @@ export function CounterControl({ value, cap, label, onChange }: CounterControlPr
         −
       </button>
       <span
-        className={`min-w-10 text-center font-mono text-[12px] tabular-nums ${
+        className={`min-w-11 text-center font-mono text-[12px] tabular-nums ${
           value >= cap ? 'text-signal' : 'text-muted'
         }`}
       >

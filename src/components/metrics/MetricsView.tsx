@@ -3,6 +3,7 @@ import {
   completionRate,
   currentStreak,
   flagRate,
+  missedTasks,
   mocksCompleted,
   percent,
   worstProjection,
@@ -25,6 +26,7 @@ export function MetricsView() {
   const flags = flagRate(state, day)
   const worst = worstProjection(state, day)
   const mocks = mocksCompleted(state)
+  const missed = missedTasks(state)
 
   const jump = (target: number) => update(goToDay(target))
 
@@ -37,7 +39,7 @@ export function MetricsView() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-px bg-rule sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <StatBlock
           label="Current streak"
           value={`${streak}`}
@@ -53,6 +55,7 @@ export function MetricsView() {
           label="Completion rate"
           value={percent(completion.rate)}
           detail={completion.total > 0 ? `${completion.done}/${completion.total} tasks` : 'no finished days'}
+          tone={completion.rate === null ? 'neutral' : completion.rate >= 0.9 ? 'good' : completion.rate >= 0.7 ? 'warn' : 'bad'}
           reading={
             completion.rate === null
               ? 'Checked tasks over available tasks, counted only across days you marked finished.'
@@ -94,7 +97,22 @@ export function MetricsView() {
           label="Mocks completed"
           value={`${mocks}`}
           detail={`of ${MOCK_TARGET}`}
+          tone={mocks >= MOCK_TARGET ? 'good' : 'neutral'}
           reading={`Two mocks on each of the six M days. ${MOCK_TARGET - mocks} left to record.`}
+        />
+
+        <StatBlock
+          label="Tasks missed"
+          value={`${missed.missed}`}
+          detail={missed.total > 0 ? `${percent(missed.rate)} of ${missed.total}` : 'no closed days'}
+          tone={missed.rate === null ? 'neutral' : missed.rate > 0.2 ? 'bad' : missed.rate > 0 ? 'warn' : 'good'}
+          reading={
+            missed.rate === null
+              ? 'Tasks that were available on a day you closed and never got checked. Nothing to count until you close a day.'
+              : missed.missed === 0
+                ? `Nothing dropped across ${missed.days} closed ${missed.days === 1 ? 'day' : 'days'}.`
+                : `Left unchecked on the ${missed.days} ${missed.days === 1 ? 'day' : 'days'} you closed. See what slips first below.`
+          }
         />
       </div>
 

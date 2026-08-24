@@ -15,7 +15,7 @@ export function NoteField({ value, onChange, label, placeholder, rows = 3 }: Not
         rows={rows}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full resize-y border border-rule bg-panel-2 px-3 py-2 text-[13px] leading-relaxed text-ink outline-none focus:border-signal"
+        className="field resize-y text-[13px] leading-relaxed"
       />
     </label>
   )
