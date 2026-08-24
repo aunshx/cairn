@@ -9,26 +9,28 @@ type DayStripProps = {
 
 type Tone = { shell: string; fill: string; text: string }
 
-const NEUTRAL: Tone = { shell: 'bg-rule/20', fill: '', text: 'text-dim/70' }
+const NEUTRAL: Tone = { shell: 'bg-rule/45', fill: '', text: 'text-dim' }
+
+const IN_PROGRESS: Tone = { shell: 'bg-rule/45', fill: 'bg-signal/85', text: 'text-signal' }
 
 const COMPLETE: Tone = {
-  shell: 'bg-rule/20',
+  shell: 'bg-rule/45',
   fill: 'bg-gradient-to-t from-signal to-accent',
   text: 'text-ground',
 }
 
 const SCALE: { upTo: number; tone: Tone }[] = [
-  { upTo: 0, tone: { shell: 'bg-bad/10', fill: '', text: 'text-bad/70' } },
-  { upTo: 24, tone: { shell: 'bg-rule/20', fill: 'bg-bad/55', text: 'text-bad' } },
-  { upTo: 49, tone: { shell: 'bg-rule/20', fill: 'bg-bad/40', text: 'text-bad/90' } },
-  { upTo: 69, tone: { shell: 'bg-rule/20', fill: 'bg-flag/50', text: 'text-flag' } },
-  { upTo: 89, tone: { shell: 'bg-rule/20', fill: 'bg-flag/40', text: 'text-flag/90' } },
-  { upTo: 99, tone: { shell: 'bg-rule/20', fill: 'bg-signal/50', text: 'text-signal' } },
+  { upTo: 0, tone: { shell: 'bg-bad/25', fill: '', text: 'text-bad' } },
+  { upTo: 24, tone: { shell: 'bg-rule/45', fill: 'bg-bad/85', text: 'text-bad' } },
+  { upTo: 49, tone: { shell: 'bg-rule/45', fill: 'bg-bad/65', text: 'text-bad' } },
+  { upTo: 69, tone: { shell: 'bg-rule/45', fill: 'bg-flag/85', text: 'text-flag' } },
+  { upTo: 89, tone: { shell: 'bg-rule/45', fill: 'bg-flag/65', text: 'text-flag' } },
+  { upTo: 99, tone: { shell: 'bg-rule/45', fill: 'bg-signal/80', text: 'text-signal' } },
 ]
 
-function toneFor(pct: number, finished: boolean, isActive: boolean): Tone {
+function toneFor(pct: number, finished: boolean, isPast: boolean): Tone {
   if (finished || pct >= 100) return COMPLETE
-  if (!isActive && pct === 0) return NEUTRAL
+  if (!isPast) return pct > 0 ? IN_PROGRESS : NEUTRAL
   return SCALE.find((step) => pct <= step.upTo)?.tone ?? NEUTRAL
 }
 
@@ -46,8 +48,8 @@ export function DayStrip({ state, onJump }: DayStripProps) {
         const pct = Math.round(rate * 100)
         const isPast = day < today
         const isToday = day === today
-        const tone = toneFor(pct, record.finished, isPast || isToday)
-        const showPct = rate > 0 || isPast
+        const tone = toneFor(pct, record.finished, isPast)
+        const showPct = isPast || rate > 0
 
         return (
           <button
@@ -65,7 +67,7 @@ export function DayStrip({ state, onJump }: DayStripProps) {
             } · ${formatShortDate(state.start, day)}`}
             className={`group relative h-10 w-[26px] shrink-0 overflow-hidden rounded-[3px] transition-all duration-200 hover:brightness-150 sm:w-auto sm:min-w-[20px] sm:flex-1 ${
               tone.shell
-            } ${mock ? 'outline-1 outline-dashed outline-dim/35 -outline-offset-1' : ''} ${
+            } ${mock ? 'outline-1 outline-dashed outline-dim/60 -outline-offset-1' : ''} ${
               current ? 'ring-1 ring-signal ring-offset-1 ring-offset-ground' : ''
             }`}
           >
@@ -83,7 +85,7 @@ export function DayStrip({ state, onJump }: DayStripProps) {
 
             <span
               className={`absolute inset-x-0 top-1 text-center font-mono text-[7px] leading-none tabular-nums ${
-                current ? 'text-signal' : 'text-dim/60'
+                current ? 'text-signal' : 'text-muted'
               }`}
             >
               {day}
