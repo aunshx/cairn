@@ -10,6 +10,7 @@ import {
 } from '../../hooks/useTracker'
 import { decodePick } from '../../lib/catalogs'
 import { CatalogPicker } from './CatalogPicker'
+import { AppSlots } from './AppSlots'
 import { DsaSlots } from './DsaSlots'
 import type { Task } from '../../lib/schedule'
 import type { DayRecord } from '../../lib/types'
@@ -101,6 +102,8 @@ export function TaskRow({ task, day, record }: TaskRowProps) {
           {task.dsa && task.cap !== undefined && (
             <DsaSlots day={day} slot={task.id} cap={task.cap} record={record} />
           )}
+
+          {task.apps && task.cap !== undefined && <AppSlots day={day} cap={task.cap} />}
         </div>
 
         <div className="flex shrink-0 items-center gap-2 pt-0.5">
