@@ -7,6 +7,7 @@ const LOWERCASE = new Set(['a', 'an', 'and', 'of', 'the', 'to', 'in', 'with', 'f
 export type ParsedProblem = {
   name: string
   url?: string
+  slug?: string
 }
 
 function deslug(slug: string): string {
@@ -57,5 +58,5 @@ export function parseProblemInput(raw: string): ParsedProblem {
 
   const name = deslug(slug)
   if (name === '') return { name: url.hostname, url: trimmed }
-  return { name, url: trimmed }
+  return { name, url: trimmed, slug: slug.toLowerCase() }
 }
