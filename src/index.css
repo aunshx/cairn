@@ -80,6 +80,28 @@
     color: inherit;
   }
 
+  button,
+  select,
+  summary,
+  [role='tab'],
+  [role='button'],
+  input[type='checkbox'],
+  input[type='radio'],
+  input[type='file'],
+  input[type='submit'] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled,
+  input:disabled {
+    cursor: not-allowed;
+  }
+
+  a {
+    cursor: pointer;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-signal);
     outline-offset: 2px;
