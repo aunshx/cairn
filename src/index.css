@@ -103,9 +103,12 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-signal);
-    outline-offset: 2px;
-    border-radius: var(--radius-sm);
+    outline: 2px solid color-mix(in srgb, var(--color-signal) 70%, transparent);
+    outline-offset: 3px;
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
   }
 
   ::selection {
@@ -183,6 +186,32 @@
   }
 }
 
+@layer components {
+  .confetti-piece {
+    position: absolute;
+    top: -6vh;
+    border-radius: 1px;
+    opacity: 0;
+    animation-name: confetti-fall;
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+    animation-fill-mode: forwards;
+  }
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  8% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--drift), 108vh, 0) rotate(var(--spin));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -191,6 +220,10 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .confetti-piece {
+    display: none !important;
   }
 }
 
