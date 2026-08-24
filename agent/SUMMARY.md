@@ -18,14 +18,14 @@ npm run lint              # oxlint, currently clean
 ```
 
 Without the two Supabase vars the app renders `SetupNotice` instead of the tracker. The schema SQL
-lives in `README.md` and in `SetupNotice.tsx` (`SCHEMA_SQL`), and the two must be kept in step.
+lives in `../README.md` and in `SetupNotice.tsx` (`SCHEMA_SQL`), and the two must be kept in step.
 
 ## The one non-obvious thing about persistence
 
 Everything is a single `jsonb` blob in one row: `tracker.data`, keyed by `user_id` with
 `default auth.uid()`. Writes are `upsert({ data: wholeState })`.
 
-**`validateState` in `src/lib/types.ts` rebuilds the object field by field on read.** A field added
+**`validateState` in `../src/lib/types.ts` rebuilds the object field by field on read.** A field added
 to `TrackerState` or `DayRecord` but forgotten there will save fine and silently vanish on reload.
 This has been the single most likely way to break the app. Any new field needs a line in
 `validateState` / `validateDay`, and the cheap way to prove it is a JSON round-trip deep-diff (see
@@ -152,6 +152,6 @@ commit discipline.
 - **GFE affords 16 slots against 18 entries** at 42 days / 3+1, since `gfe` only runs on A days. The
   last two must be ticked in the catalog directly.
 - **Access code is client-side only.** `VITE_SIGNUP_CODE` is inlined into the bundle by Vite. The
-  real lock is turning off sign-ups in Supabase, or the Postgres trigger documented in `README.md`.
+  real lock is turning off sign-ups in Supabase, or the Postgres trigger documented in `../README.md`.
 - **Theme flashes to system** on the sign-in screen, because the preference lives in Postgres and has
   not loaded yet. Deliberate: the spec bans browser storage for app data.

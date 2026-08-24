@@ -4,6 +4,10 @@ A 42-day interview preparation tracker. One page, three views, one row in Postgr
 
 Vite + React 19 + TypeScript + Tailwind. Supabase for auth and storage. Charts are hand-written SVG.
 
+Working on this? Start with [`agent/CLAUDE.md`](agent/CLAUDE.md), then
+[`agent/SUMMARY.md`](agent/SUMMARY.md) for how it is built and
+[`agent/DESIGN.md`](agent/DESIGN.md) for the design system.
+
 ## Local setup
 
 ```

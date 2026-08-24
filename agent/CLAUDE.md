@@ -7,7 +7,7 @@ and Postgres, deployed static. Single user by design.
 
 - **`SUMMARY.md`**: what the project is, how it is put together, what the code actually does now.
 - **`DESIGN.md`**: the design system, palettes, contrast rules, writing style.
-- **`README.md`**: setup, schema SQL, deploy, access control.
+- **`../README.md`**: setup, schema SQL, deploy, access control.
 
 ## Commands
 

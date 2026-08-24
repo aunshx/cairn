@@ -1,6 +1,6 @@
 # cairn design system
 
-Everything here is enforced by tokens in `src/index.css`. Components reference semantic names
+Everything here is enforced by tokens in `../src/index.css`. Components reference semantic names
 (`bg-panel`, `text-signal`), never raw hex. If you find a hex value in a component, that is a bug.
 
 ## Where the look came from
@@ -73,7 +73,7 @@ One meaning per colour, consistently:
   tiles, progress bars, the checked checkbox, the primary button, the day number.
 
 Percentage-driven scales run danger to green: `bad` below 50, `flag` to 89, `signal` to 99, gradient
-at 100. See `toneFor` in `DayStrip.tsx` for the canonical implementation.
+at 100. See `toneFor` in `../src/components/DayStrip.tsx` for the canonical implementation.
 
 ## Motion
 
