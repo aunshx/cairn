@@ -4,8 +4,8 @@ A single-page interview-prep tracker. Vite + React 19 + TypeScript + Tailwind v4
 and storage, deployed as static files. 100 commits on `main`, no branches, pushed to
 `github.com/aunshx/cairn`.
 
-Read this before `BUILD_SPEC.md`. The spec is the original brief and **parts of it are now stale**;
-where they disagree, this file and the code are correct. The stale sections are listed at the bottom.
+This file plus `DESIGN.md` and `CLAUDE.md` are the current source of truth. The original build spec
+has been removed; the decisions that diverged from it are recorded under "How it got here" below.
 
 ## Running it
 
@@ -121,22 +121,29 @@ Run `npx tsc -b` and `npm run lint` before committing; both are currently clean.
 - Both light and dark themes must pass 4.5:1 on text. The light palette was fixed once already
   (`#0e9384 -> #0f766e` teal, `#7b8ca1 -> #5f7186` dim) after failing.
 
-## Where the spec is stale
+## How it got here
 
-`BUILD_SPEC.md` still describes, and the code no longer does:
+The build started from a written spec and then diverged as the user iterated. These are the
+decisions that overrode the original brief, kept here so nobody "fixes" them back:
 
-- **Visual direction (section 11).** It forbids gradients, shadows, rounded corners and celebration
-  animation. The user overrode all of that: the app uses rounded surfaces, elevation, teal-to-indigo
-  gradients, and confetti on finishing a day.
-- **The plotting-paper grid.** Removed, replaced with soft radial glows.
-- **Rest days.** Replaced by M days, then the cycle became configurable.
-- **Fixed targets.** All derived now.
-- **Gym.** Strength in the morning, Cardio in its own evening block, both with activity chips
-  (CST, BB, LA, Cycling, Run, Inc Walk) and an editable duration.
-- **Auto-assigned catalog tasks and the standalone DSA log.** Replaced as described above.
+- **Visual direction.** The brief demanded a flat logbook: no gradients, shadows, rounded corners or
+  celebration animation. All of that was overridden. The app now uses rounded surfaces, elevation,
+  teal-to-indigo gradients, and confetti when a day is closed.
+- **Background.** A fine plotting-paper grid was specified and built, then removed for reading as a
+  screen door. Replaced with soft radial glows.
+- **Day types.** Rest days became M (mock and revision) days, then the whole cycle became
+  user-configurable.
+- **Targets.** Originally fixed constants. Now derived from the schedule by `planTargets`.
+- **Gym.** Originally fixed "Cardio, 45 min" and "Weights, 60 min" rows. Now Strength in the morning
+  and Cardio in its own evening block, both with activity chips and an editable duration.
+- **Catalog tasks.** Originally auto-assigned the next unchecked item. Now every catalog-backed task
+  is a picker, because the auto-assignment kept being wrong about what was actually done.
+- **DSA.** Originally a counter plus a standalone log. Now logged inline on the session rows with
+  NeetCode 250 type-ahead, with the counter derived from what you log.
 
-Sections still accurate: 1 (stack), 2 (auth), 3 (RLS, plus `default auth.uid()`), 4 (save
-semantics), 5 (data model, extended), 12 (README), 13 (repository and commit discipline).
+Unchanged from the brief and still authoritative in the code: the stack, auth flow, row-level
+security (plus `default auth.uid()`), the save semantics, the shape of the JSON blob, and the
+commit discipline.
 
 ## Open items
 

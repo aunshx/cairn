@@ -7,8 +7,6 @@ and Postgres, deployed static. Single user by design.
 
 - **`SUMMARY.md`**: what the project is, how it is put together, what the code actually does now.
 - **`DESIGN.md`**: the design system, palettes, contrast rules, writing style.
-- **`BUILD_SPEC.md`**: the original brief. **Parts are stale.** Where it disagrees with the code or
-  the two files above, the code wins. `SUMMARY.md` lists exactly which sections are out of date.
 - **`README.md`**: setup, schema SQL, deploy, access control.
 
 ## Commands

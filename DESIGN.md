@@ -5,9 +5,9 @@ Everything here is enforced by tokens in `src/index.css`. Components reference s
 
 ## Where the look came from
 
-`BUILD_SPEC.md` section 11 asked for a flat technical logbook: no gradients, no shadows, no rounded
-corners, no celebration. That was built, then the user rejected it and asked for something "exciting
-and modern". The current design is the override. Do not restore the flat look by citing the spec.
+The project began as a flat technical logbook: no gradients, no shadows, no rounded corners, no
+celebration animation. That was built and then rejected; the user asked for something "exciting and
+modern" instead. The current design is that override. Do not drift back toward the flat look.
 
 ## Palettes
 
