@@ -14,15 +14,16 @@ export function DayStrip({ state, onJump }: DayStripProps) {
         const type = dayType(day)
         const record = dayRecord(state, day)
         const current = day === state.day
-        const rest = type === 'rest'
+        const mock = type === 'M'
         const completion = dayCompletion(state, day)
 
-        const height = rest ? 'h-4' : 'h-7'
-        const fill = record.finished
-          ? 'bg-signal'
+        const solid = record.finished ? 'bg-signal' : completion.done > 0 ? 'bg-signal/30' : 'bg-rule/50'
+        const outlined = record.finished
+          ? 'border border-signal bg-signal/40'
           : completion.done > 0
-            ? 'bg-signal/30'
-            : 'bg-rule/50'
+            ? 'border border-signal/60 bg-signal/10'
+            : 'border border-dim bg-transparent'
+        const fill = mock ? outlined : solid
 
         return (
           <button
@@ -30,14 +31,14 @@ export function DayStrip({ state, onJump }: DayStripProps) {
             type="button"
             onClick={() => onJump(day)}
             aria-label={`Day ${day}, ${formatShortDate(state.start, day)}, ${
-              rest ? 'rest' : `type ${type}`
+              mock ? 'mock day' : `type ${type}`
             }${record.finished ? ', finished' : ''}`}
             aria-current={current ? 'true' : undefined}
-            title={`Day ${day} · ${rest ? 'Rest' : type} · ${formatShortDate(state.start, day)}`}
+            title={`Day ${day} · ${mock ? 'Mock' : type} · ${formatShortDate(state.start, day)}`}
             className="group flex min-w-0 flex-1 shrink flex-col items-center justify-end gap-1 py-1"
           >
             <span
-              className={`w-full min-w-[3px] transition-colors ${height} ${fill} ${
+              className={`h-7 w-full min-w-[3px] transition-colors ${fill} ${
                 current ? 'outline outline-1 outline-offset-1 outline-signal' : 'group-hover:bg-dim'
               }`}
             />

@@ -19,7 +19,7 @@ export type Session = {
 }
 
 export function dayType(day: number): DayType {
-  if (day % 7 === 0) return 'rest'
+  if (day % 7 === 0) return 'M'
   const workIndex = day - Math.floor((day - 1) / 7)
   return workIndex % 2 === 1 ? 'A' : 'B'
 }
@@ -27,16 +27,42 @@ export function dayType(day: number): DayType {
 export function dayTypeLabel(type: DayType): string {
   if (type === 'A') return 'A · HLD'
   if (type === 'B') return 'B · LLD'
-  return 'Rest'
+  return 'M · Mock'
 }
 
-const GYM_EVENING: Task[] = [
-  { id: 'gym2', label: 'Cardio, 45 min' },
-  { id: 'rev', label: 'Revision block', sub: 'logs → 1 DSA redo → blank-page recall', time: '19:45' },
-  { id: 'beh', label: 'Behavioral, 15 min', catalog: 'beh' },
-  { id: 'walk', label: 'Walk, 20 min' },
-  { id: 'bed', label: 'Screens off 20:30, bed 21:00' },
-]
+export const DAY_TYPES: DayType[] = ['A', 'B', 'M']
+
+const BREAK_GYM: Session = {
+  title: 'Break + Gym 1',
+  range: '11:15 – 12:15',
+  tasks: [{ id: 'gym1', label: 'Weights, 60 min' }],
+}
+
+const EVENING_AB: Session = {
+  title: 'Evening',
+  range: '18:00 – 21:00',
+  tasks: [
+    { id: 'gym2', label: 'Cardio, 45 min' },
+    { id: 'rev', label: 'Revision block', sub: 'logs → 1 DSA redo → blank-page recall', time: '19:45' },
+    { id: 'beh', label: 'Behavioral, 15 min', catalog: 'beh' },
+    { id: 'walk', label: 'Walk, 20 min' },
+    { id: 'bed', label: 'Screens off 20:30, bed 21:00' },
+  ],
+}
+
+const EVENING_M: Session = {
+  title: 'Evening',
+  range: '18:00 – 21:00',
+  tasks: [
+    { id: 'gym2', label: 'Cardio, 45 min' },
+    { id: 'rev', label: 'Revision block', sub: "blank-page recall on today's HLD", time: '19:45' },
+    { id: 'walk', label: 'Walk, 20 min' },
+    { id: 'bed', label: 'Screens off 20:30, bed 21:00' },
+  ],
+}
+
+const DESIGN_SUB = 'reqs → 40m cold → answer key → delta'
+const LLD_SUB = 'reqs → class diagram → code core → delta'
 
 const DAY_A: Session[] = [
   {
@@ -44,37 +70,21 @@ const DAY_A: Session[] = [
     range: '05:30 – 11:00',
     tasks: [
       { id: 'dsa1', label: '4 DSA', sub: '25-min cap each', time: '06:45', cap: 4 },
-      {
-        id: 'design',
-        label: 'HLD problem',
-        sub: 'reqs → 40m cold → answer key → delta',
-        time: '07:15',
-        catalog: 'design',
-      },
+      { id: 'design', label: 'HLD problem', sub: DESIGN_SUB, time: '07:15', catalog: 'design' },
       { id: 'dsa2', label: '3 DSA', sub: 'interleaved, not slabbed', time: '08:35', cap: 3 },
       { id: 'quiz', label: '10 GFE quiz', time: '09:55' },
     ],
   },
-  {
-    title: 'Break + Gym 1',
-    range: '11:15 – 12:15',
-    tasks: [{ id: 'gym1', label: 'Weights, 60 min' }],
-  },
+  BREAK_GYM,
   {
     title: 'Session 2',
     range: '13:00 – 18:00',
     tasks: [
-      {
-        id: 'gfe',
-        label: 'GFE component, timed 2h',
-        sub: 'no AI, no docs tab',
-        time: '13:00',
-        catalog: 'gfe',
-      },
+      { id: 'gfe', label: 'GFE component, timed 2h', sub: 'no AI, no docs tab', time: '13:00', catalog: 'gfe' },
       { id: 'apps', label: '3 applications', sub: '2 A-tier max, rest assembly', time: '15:00', cap: 3 },
     ],
   },
-  { title: 'Evening', range: '18:00 – 21:00', tasks: GYM_EVENING },
+  EVENING_AB,
 ]
 
 const DAY_B: Session[] = [
@@ -83,13 +93,7 @@ const DAY_B: Session[] = [
     range: '05:30 – 11:00',
     tasks: [
       { id: 'dsa1', label: '4 DSA', sub: '25-min cap each', time: '06:45', cap: 4 },
-      {
-        id: 'design',
-        label: 'LLD problem',
-        sub: 'reqs → class diagram → code core → delta',
-        time: '07:15',
-        catalog: 'design',
-      },
+      { id: 'design', label: 'LLD problem', sub: LLD_SUB, time: '07:15', catalog: 'design' },
       { id: 'dsa2', label: '3 DSA', sub: 'interleaved, not slabbed', time: '08:35', cap: 3 },
       {
         id: 'read',
@@ -99,11 +103,7 @@ const DAY_B: Session[] = [
       },
     ],
   },
-  {
-    title: 'Break + Gym 1',
-    range: '11:15 – 12:15',
-    tasks: [{ id: 'gym1', label: 'Weights, 60 min' }],
-  },
+  BREAK_GYM,
   {
     title: 'Session 2',
     range: '13:00 – 18:00',
@@ -113,27 +113,38 @@ const DAY_B: Session[] = [
       { id: 'build2', label: 'Second build hour or overflow', time: '16:00' },
     ],
   },
-  { title: 'Evening', range: '18:00 – 21:00', tasks: GYM_EVENING },
+  EVENING_AB,
 ]
 
-const DAY_REST: Session[] = [
+const DAY_M: Session[] = [
   {
-    title: 'Rest day',
-    range: 'Nothing is owed today',
+    title: 'Session 1',
+    range: '05:30 – 11:00',
     tasks: [
-      { id: 'wake', label: 'Wake 05:00 anyway', sub: 'the anchor holds on rest days too' },
-      { id: 'li', label: 'Batch 3 LinkedIn posts, 30 min', sub: 'schedule Mon/Wed/Fri morning' },
-      { id: 'gym1', label: 'Walk or light cardio' },
-      { id: 'logs', label: 'Skim delta logs, 15 min' },
-      { id: 'off', label: 'Rest. Actually rest.' },
+      { id: 'dsa1', label: '4 DSA', sub: 'redos from the queue first', time: '06:45', cap: 4 },
+      { id: 'design', label: 'HLD problem', sub: DESIGN_SUB, time: '07:15', catalog: 'design' },
+      { id: 'dsa2', label: '3 DSA', time: '08:35', cap: 3 },
+      { id: 'logs', label: 'Reread every delta log to date', time: '09:55' },
     ],
   },
+  BREAK_GYM,
+  {
+    title: 'Session 2',
+    range: '13:00 – 18:00',
+    tasks: [
+      { id: 'mock1', label: 'Mock: system design, 45 min', sub: 'recorded, camera on', time: '13:00' },
+      { id: 'mock2', label: 'Mock: coding or behavioral', sub: 'recorded, camera on', time: '14:00' },
+      { id: 'redo', label: 'One past LLD cold, code included', time: '15:00' },
+      { id: 'li', label: 'Batch 3 LinkedIn posts', sub: 'schedule Mon/Wed/Fri morning', time: '16:00' },
+    ],
+  },
+  EVENING_M,
 ]
 
 export function sessionsFor(type: DayType): Session[] {
   if (type === 'A') return DAY_A
   if (type === 'B') return DAY_B
-  return DAY_REST
+  return DAY_M
 }
 
 export function tasksFor(type: DayType): Task[] {
@@ -143,9 +154,7 @@ export function tasksFor(type: DayType): Task[] {
 export function catalogFor(task: Task, type: DayType): CatalogKey | null {
   if (!task.catalog) return null
   if (task.catalog !== 'design') return task.catalog
-  if (type === 'A') return 'hld'
-  if (type === 'B') return 'lld'
-  return null
+  return type === 'B' ? 'lld' : 'hld'
 }
 
 export function parseIso(iso: string): Date {

@@ -1,6 +1,6 @@
 import { dayType, dayTypeLabel, formatDayDate } from '../lib/schedule'
 import { finishedDays } from '../lib/metrics'
-import { TOTAL_DAYS, type SaveState, type TrackerState, type ViewKey } from '../lib/types'
+import { TOTAL_DAYS, type DayType, type SaveState, type TrackerState, type ViewKey } from '../lib/types'
 import { DayStrip } from './DayStrip'
 import { SaveStatus } from './SaveStatus'
 import { Tabs } from './ui/Tabs'
@@ -11,10 +11,10 @@ const VIEWS = [
   { key: 'catalog' as const, label: 'Catalog' },
 ]
 
-const BADGE: Record<string, string> = {
+const BADGE: Record<DayType, string> = {
   A: 'border-signal/50 text-signal',
   B: 'border-signal/50 text-signal',
-  rest: 'border-dim text-dim',
+  M: 'border-flag/60 text-flag',
 }
 
 type HeaderProps = {

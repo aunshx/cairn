@@ -1,6 +1,6 @@
 export type CatalogKey = 'hld' | 'lld' | 'gfe' | 'beh'
 
-export type DayType = 'A' | 'B' | 'rest'
+export type DayType = 'A' | 'B' | 'M'
 
 export type DsaEntry = {
   name: string
@@ -51,7 +51,11 @@ export type ViewKey = 'today' | 'metrics' | 'catalog'
 
 export const TOTAL_DAYS = 42
 
-export const DSA_TARGET = 252
+export const DSA_TARGET = 258
+
+export const MOCK_TARGET = 12
+
+export const APPS_TARGET = 108
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
