@@ -1,6 +1,6 @@
 import { setFinished, useTracker } from '../../hooks/useTracker'
 import { dayCompletion, dayRecord } from '../../lib/metrics'
-import { formatDayDate, resolveDaySlots, sessionsFor } from '../../lib/schedule'
+import { formatDayDate, sessionsFor } from '../../lib/schedule'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { DayNote } from './DayNote'
@@ -14,7 +14,6 @@ export function TodayView() {
   const day = state.day
   const record = dayRecord(state, day)
   const sessions = sessionsFor(day)
-  const slots = resolveDaySlots(day, state, record)
   const completion = dayCompletion(state, day)
 
   return (
@@ -44,7 +43,7 @@ export function TodayView() {
               {session.range && <span className="font-mono text-[10px] text-dim">{session.range}</span>}
             </div>
             {session.tasks.map((task) => (
-              <TaskRow key={task.id} task={task} day={day} record={record} slot={slots[task.id]} />
+              <TaskRow key={task.id} task={task} day={day} record={record} />
             ))}
           </section>
         ))}

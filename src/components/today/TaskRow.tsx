@@ -10,7 +10,7 @@ import {
 } from '../../hooks/useTracker'
 import { decodePick } from '../../lib/catalogs'
 import { CatalogPicker } from './CatalogPicker'
-import type { SlotResolution, Task } from '../../lib/schedule'
+import type { Task } from '../../lib/schedule'
 import type { DayRecord } from '../../lib/types'
 import { Checkbox } from '../ui/Checkbox'
 import { CounterControl } from './CounterControl'
@@ -20,7 +20,6 @@ type TaskRowProps = {
   task: Task
   day: number
   record: DayRecord
-  slot?: SlotResolution
 }
 
 function PencilIcon() {
@@ -37,24 +36,23 @@ function PencilIcon() {
   )
 }
 
-export function TaskRow({ task, day, record, slot }: TaskRowProps) {
+export function TaskRow({ task, day, record }: TaskRowProps) {
   const { state, update } = useTracker()
   const [open, setOpen] = useState(false)
 
   const done = record.done[task.id] === true
   const count = record.n[task.id] ?? 0
   const note = record.notes[task.id] ?? ''
-  const isMech = task.catalog === 'mech' && slot?.catalog === 'mech'
-  const mechValue = slot ? (state.mechResults[slot.index] ?? '') : ''
-  const label = slot?.relabel ?? task.label
-  const subtitle = slot?.item.measure ?? task.sub
-
   const picked = decodePick(record.picks[task.id])
+  const isMech = picked?.kind === 'catalog' && picked.catalog === 'mech'
+  const mechIndex = isMech ? picked.index : null
+  const mechValue = mechIndex === null ? '' : (state.mechResults[mechIndex] ?? '')
+  const label = task.label
+  const subtitle = (picked?.kind === 'catalog' ? picked.item.measure : undefined) ?? task.sub
 
   function toggle(next: boolean) {
     update((s) => {
       const withTask = toggleTask(day, task.id, task.cap ?? null)(s)
-      if (slot) return setCatalog(slot.catalog, slot.index, next)(withTask)
       if (picked?.kind === 'catalog') return setCatalog(picked.catalog, picked.index, next)(withTask)
       return withTask
     })
@@ -80,19 +78,18 @@ export function TaskRow({ task, day, record, slot }: TaskRowProps) {
             {label}
           </p>
 
-          {slot && (
-            <p className="mt-1 inline-flex flex-wrap items-center gap-x-2 rounded-md bg-panel-2/70 px-2 py-0.5 font-mono text-[11px] text-signal">
-              <span className="text-dim">{String(slot.index + 1).padStart(2, '0')}</span>
-              {slot.item.name}
-              {slot.item.tag && <span className="text-dim">· {slot.item.tag}</span>}
-            </p>
-          )}
-
           {task.pick && (
             <CatalogPicker
               catalogs={task.pick}
               value={record.picks[task.id]}
-              checked={{ hld: state.hld, lld: state.lld, gfe: state.gfe, mech: state.mech, beh: state.beh }}
+              checked={{
+                hld: state.hld,
+                lld: state.lld,
+                gfe: state.gfe,
+                mech: state.mech,
+                beh: state.beh,
+                dsa: state.dsa,
+              }}
               label={`${task.label} for day ${day}`}
               onChange={(next) => update(setPick(day, task.id, next))}
             />
@@ -131,13 +128,13 @@ export function TaskRow({ task, day, record, slot }: TaskRowProps) {
 
       {open && (
         <div className="space-y-3 border-t border-rule/50 bg-ground/40 px-4 py-4 sm:px-5">
-          {isMech && slot && (
+          {isMech && mechIndex !== null && (
             <label className="block">
               <span className="micro mb-1.5 block">The number</span>
               <input
                 value={mechValue}
-                onChange={(e) => update(setMechResult(slot.index, e.target.value))}
-                placeholder={slot.item.measure ?? 'what you measured'}
+                onChange={(e) => update(setMechResult(mechIndex, e.target.value))}
+                placeholder={picked.item.measure ?? 'what you measured'}
                 className="field font-mono text-[12px]"
               />
             </label>

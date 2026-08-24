@@ -1,8 +1,5 @@
-import { CATALOGS, nextUnchecked, noteKey, type CatalogItem } from './catalogs'
-import type { CatalogKey, DayRecord, DayType, TrackerState } from './types'
-import { TOTAL_DAYS, emptyDay } from './types'
-
-export type TaskCatalog = 'design' | CatalogKey
+import type { CatalogKey, DayType } from './types'
+import { TOTAL_DAYS } from './types'
 
 export type Task = {
   id: string
@@ -10,7 +7,6 @@ export type Task = {
   sub?: string
   time?: string
   cap?: number
-  catalog?: TaskCatalog
   pick?: CatalogKey[]
 }
 
@@ -74,7 +70,16 @@ const BUILD_MECH: Task = {
   label: 'HLD mechanism, hard 2h cap',
   sub: 'from scratch, one mechanism, not a whole system',
   time: '13:00',
-  catalog: 'mech',
+  pick: ['mech'],
+}
+
+const HABITS: Session = {
+  title: 'Every day',
+  range: 'No exceptions',
+  tasks: [
+    { id: 'nodrink', label: 'No drinking', sub: 'tick it before bed, not in the morning' },
+    { id: 'nosmoke', label: 'No smoking', sub: 'tick it before bed, not in the morning' },
+  ],
 }
 
 const DESIGN_SUB = 'reqs → 40m cold → answer key → delta'
@@ -96,13 +101,14 @@ const DAY_A: Session[] = [
     title: 'Session 2',
     range: '13:00 – 18:00',
     tasks: [
-      { id: 'gfe', label: 'GFE component, timed 2h', sub: 'no AI, no docs tab', time: '13:00', catalog: 'gfe' },
+      { id: 'gfe', label: 'GFE component, timed 2h', sub: 'no AI, no docs tab', time: '13:00', pick: ['gfe'] },
       { id: 'apps', label: '3 applications', sub: '2 A-tier max, rest assembly', time: '15:00', cap: 3 },
-      { id: 'beh', label: 'Behavioral, 15 min', time: '17:00', catalog: 'beh' },
+      { id: 'beh', label: 'Behavioral, 15 min', time: '17:00', pick: ['beh'] },
     ],
   },
   BREAK_GYM_2,
   EVENING_AB,
+  HABITS,
 ]
 
 function dayBSessions(build: Task): Session[] {
@@ -130,11 +136,12 @@ function dayBSessions(build: Task): Session[] {
           sub: 'close it, write what you remember',
           time: '16:00',
         },
-        { id: 'beh', label: 'Behavioral, 15 min', time: '17:00', catalog: 'beh' },
+        { id: 'beh', label: 'Behavioral, 15 min', time: '17:00', pick: ['beh'] },
       ],
     },
     BREAK_GYM_2,
     EVENING_AB,
+    HABITS,
   ]
 }
 
@@ -165,6 +172,7 @@ const DAY_M: Session[] = [
   },
   BREAK_GYM_2,
   EVENING_M,
+  HABITS,
 ]
 
 export function workIndex(day: number): number {
@@ -198,114 +206,6 @@ export function taskById(day: number, id: string): Task | null {
 
 export function capFor(day: number, id: string): number | null {
   return taskById(day, id)?.cap ?? null
-}
-
-export type SlotResolution = {
-  catalog: CatalogKey
-  index: number
-  item: CatalogItem
-  relabel: string | null
-}
-
-function checkedIndices(map: Record<string, boolean>): number[] {
-  return Object.entries(map)
-    .filter(([, on]) => on)
-    .map(([k]) => Number(k))
-    .filter((n) => Number.isInteger(n))
-    .sort((a, b) => a - b)
-}
-
-function slotCatalog(slot: TaskCatalog, state: TrackerState): CatalogKey {
-  if (slot !== 'design') return slot
-  if (nextUnchecked('hld', state.hld)) return 'hld'
-  return nextUnchecked('lld', state.lld) ? 'lld' : 'hld'
-}
-
-type LinkedTask = { task: Task; catalog: CatalogKey }
-
-function openIndices(
-  catalog: CatalogKey,
-  checked: Record<string, boolean>,
-  claimed: ReadonlySet<string>,
-): number[] {
-  const out: number[] = []
-  const items = CATALOGS[catalog].items
-  for (let i = 0; i < items.length; i += 1) {
-    if (checked[String(i)] || claimed.has(noteKey(catalog, i))) continue
-    out.push(i)
-  }
-  return out
-}
-
-function pendingBefore(day: number, state: TrackerState, catalog: CatalogKey): number {
-  let n = 0
-  for (let d = 1; d < day; d += 1) {
-    const record = state.days[String(d)] ?? emptyDay()
-    for (const task of tasksFor(d)) {
-      if (!task.catalog) continue
-      if (slotCatalog(task.catalog, state) !== catalog) continue
-      if (record.done[task.id] !== true) n += 1
-    }
-  }
-  return n
-}
-
-export function resolveDaySlots(
-  day: number,
-  state: TrackerState,
-  record: DayRecord,
-): Record<string, SlotResolution> {
-  const linked: LinkedTask[] = []
-  for (const task of tasksFor(day)) {
-    if (!task.catalog) continue
-    linked.push({ task, catalog: slotCatalog(task.catalog, state) })
-  }
-
-  const out: Record<string, SlotResolution> = {}
-
-  for (const catalog of new Set(linked.map((l) => l.catalog))) {
-    const inCatalog = linked.filter((l) => l.catalog === catalog)
-    const settled = inCatalog.filter((l) => record.done[l.task.id] === true)
-    const consumed = checkedIndices(state[catalog]).slice(-settled.length)
-
-    settled.forEach((entry, i) => {
-      const index = consumed[i]
-      const item = index === undefined ? undefined : CATALOGS[catalog].items[index]
-      if (index === undefined || !item) return
-      out[entry.task.id] = {
-        catalog,
-        index,
-        item,
-        relabel: entry.task.catalog === 'design' && catalog === 'lld' ? 'LLD second pass' : null,
-      }
-    })
-  }
-
-  const claimed = new Set(Object.values(out).map((slot) => noteKey(slot.catalog, slot.index)))
-  const takenToday = new Map<CatalogKey, number>()
-
-  for (const { task, catalog } of linked) {
-    if (out[task.id]) continue
-
-    const k = takenToday.get(catalog) ?? 0
-    takenToday.set(catalog, k + 1)
-
-    const available = openIndices(catalog, state[catalog], claimed)
-    const index = available[pendingBefore(day, state, catalog) + k]
-    if (index === undefined) continue
-
-    const item = CATALOGS[catalog].items[index]
-    if (!item) continue
-
-    out[task.id] = {
-      catalog,
-      index,
-      item,
-      relabel: task.catalog === 'design' && catalog === 'lld' ? 'LLD second pass' : null,
-    }
-  }
-
-  return out
 }
 
 export function parseIso(iso: string): Date {
