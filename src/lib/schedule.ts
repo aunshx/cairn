@@ -19,9 +19,11 @@ export type Session = {
   tasks: Task[]
 }
 
+export const CYCLE = 4
+
 export function dayType(day: number): DayType {
-  if (day % 7 === 0) return 'M'
-  return (day - Math.floor((day - 1) / 7)) % 2 === 1 ? 'A' : 'B'
+  if (day % CYCLE === 0) return 'M'
+  return workIndex(day) % 2 === 1 ? 'A' : 'B'
 }
 
 export function dayTypeLabel(type: DayType): string {
@@ -157,7 +159,7 @@ const DAY_M: Session[] = [
 ]
 
 export function workIndex(day: number): number {
-  return day - Math.floor((day - 1) / 7)
+  return day - Math.floor((day - 1) / CYCLE)
 }
 
 export function bDayOrdinal(day: number): number | null {
