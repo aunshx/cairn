@@ -54,7 +54,18 @@ export function CatalogRow({ catalog, index, item }: CatalogRowProps) {
                 onClick={(e) => e.stopPropagation()}
                 className="font-mono text-[10px] uppercase tracking-[0.1em] text-dim underline-offset-4 transition-colors hover:text-signal hover:underline"
               >
-                Open
+                NeetCode
+              </a>
+            )}
+            {item.altUrl && (
+              <a
+                href={item.altUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+                onClick={(e) => e.stopPropagation()}
+                className="font-mono text-[10px] uppercase tracking-[0.1em] text-dim underline-offset-4 transition-colors hover:text-signal hover:underline"
+              >
+                LeetCode
               </a>
             )}
           </div>

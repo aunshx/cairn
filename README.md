@@ -113,7 +113,10 @@ One JSON blob per user, validated field by field on read, so a partial or stale 
 defaults rather than crashing.
 
 - 42 days, each with checked tasks, counter values, a DSA log, per-task notes and a day note
-- Five catalogs — HLD, LLD, GFE, Mechanisms, Behavioral — with notes that persist across all 42 days
+- Six catalogs — the NeetCode 250, HLD, LLD, GFE, Mechanisms, Behavioral — with notes that persist
+  across all 42 days. Every problem links to NeetCode, and to LeetCode as a fallback.
+- Catalog-backed tasks are picked, not prescribed: choose what you actually did from the list, or
+  type something that is not on it
 - Delta logs, a spaced-repetition redo queue at +3 / +10 / +30 days, and measured mechanism results
 
 Day types run a three-work-day cycle: every 4th day is **M**, a mock and revision day. The rest

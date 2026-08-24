@@ -6,6 +6,7 @@ export type CatalogItem = {
   tag: string
   measure?: string
   url?: string
+  altUrl?: string
 }
 
 export type Catalog = {
@@ -163,6 +164,7 @@ const DSA: CatalogItem[] = NEETCODE_250.map((p) => ({
   tag: p.category,
   measure: p.difficulty,
   url: p.url,
+  altUrl: p.leetcodeUrl,
 }))
 
 export const CATALOGS: Record<CatalogKey, Catalog> = {
