@@ -174,6 +174,36 @@ export function noteKey(key: CatalogKey, index: number): string {
   return `${key}:${index}`
 }
 
+export type Pick =
+  | { kind: 'catalog'; catalog: CatalogKey; index: number; item: CatalogItem }
+  | { kind: 'free'; name: string }
+
+export const FREE_PREFIX = 'free:'
+
+export function encodeCatalogPick(catalog: CatalogKey, index: number): string {
+  return noteKey(catalog, index)
+}
+
+export function encodeFreePick(name: string): string {
+  return `${FREE_PREFIX}${name}`
+}
+
+export function decodePick(value: string | undefined): Pick | null {
+  if (!value) return null
+  if (value.startsWith(FREE_PREFIX)) {
+    const name = value.slice(FREE_PREFIX.length).trim()
+    return name === '' ? null : { kind: 'free', name }
+  }
+  const [key, raw] = value.split(':')
+  if (!key || raw === undefined) return null
+  if (!(key in CATALOGS)) return null
+  const catalog = key as CatalogKey
+  const index = Number(raw)
+  if (!Number.isInteger(index)) return null
+  const item = CATALOGS[catalog].items[index]
+  return item ? { kind: 'catalog', catalog, index, item } : null
+}
+
 export function nextUnchecked(
   key: CatalogKey,
   checked: Record<string, boolean>,

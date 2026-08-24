@@ -1,5 +1,15 @@
 import { useState } from 'react'
-import { setCatalog, setCount, setMechResult, setTaskNote, toggleTask, useTracker } from '../../hooks/useTracker'
+import {
+  setCatalog,
+  setCount,
+  setMechResult,
+  setPick,
+  setTaskNote,
+  toggleTask,
+  useTracker,
+} from '../../hooks/useTracker'
+import { decodePick } from '../../lib/catalogs'
+import { CatalogPicker } from './CatalogPicker'
 import type { SlotResolution, Task } from '../../lib/schedule'
 import type { DayRecord } from '../../lib/types'
 import { Checkbox } from '../ui/Checkbox'
@@ -39,10 +49,14 @@ export function TaskRow({ task, day, record, slot }: TaskRowProps) {
   const label = slot?.relabel ?? task.label
   const subtitle = slot?.item.measure ?? task.sub
 
+  const picked = decodePick(record.picks[task.id])
+
   function toggle(next: boolean) {
     update((s) => {
       const withTask = toggleTask(day, task.id, task.cap ?? null)(s)
-      return slot ? setCatalog(slot.catalog, slot.index, next)(withTask) : withTask
+      if (slot) return setCatalog(slot.catalog, slot.index, next)(withTask)
+      if (picked?.kind === 'catalog') return setCatalog(picked.catalog, picked.index, next)(withTask)
+      return withTask
     })
   }
 
@@ -74,7 +88,17 @@ export function TaskRow({ task, day, record, slot }: TaskRowProps) {
             </p>
           )}
 
-          {subtitle && <p className="mt-0.5 text-[12px] leading-snug text-muted">{subtitle}</p>}
+          {task.pick && (
+            <CatalogPicker
+              catalogs={task.pick}
+              value={record.picks[task.id]}
+              checked={{ hld: state.hld, lld: state.lld, gfe: state.gfe, mech: state.mech, beh: state.beh }}
+              label={`${task.label} for day ${day}`}
+              onChange={(next) => update(setPick(day, task.id, next))}
+            />
+          )}
+
+          {subtitle && <p className="mt-1 text-[12px] leading-snug text-muted">{subtitle}</p>}
         </div>
 
         <div className="flex shrink-0 items-center gap-2 pt-0.5">

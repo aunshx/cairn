@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { decodePick } from '../lib/catalogs'
 import { parseProblemInput } from '../lib/problems'
 import { getSupabase, TRACKER_TABLE } from '../lib/supabase'
 import {
@@ -312,6 +313,22 @@ export const toggleTask =
       return withDay(state, day, (r) => ({ ...r, done: { ...r.done, [taskId]: next } }))
     }
     return setCount(day, taskId, next ? cap : 0, cap)(state)
+  }
+
+export const setPick =
+  (day: number, taskId: string, value: string): Recipe =>
+  (state) => {
+    const record = state.days[String(day)] ?? emptyDay()
+    const previous = decodePick(record.picks[taskId])
+    const next = decodePick(value)
+
+    let out = withDay(state, day, (r) => ({ ...r, picks: { ...r.picks, [taskId]: value } }))
+
+    if (record.done[taskId] === true) {
+      if (previous?.kind === 'catalog') out = setCatalog(previous.catalog, previous.index, false)(out)
+      if (next?.kind === 'catalog') out = setCatalog(next.catalog, next.index, true)(out)
+    }
+    return out
   }
 
 export const setTaskNote =

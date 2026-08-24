@@ -28,6 +28,7 @@ export type DayRecord = {
   n: Record<string, number>
   dsa: DsaEntry[]
   notes: Record<string, string>
+  picks: Record<string, string>
   note: string
   finished: boolean
   finishedAt: string | null
@@ -130,7 +131,7 @@ export function todayIso(): string {
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 
 export function emptyDay(): DayRecord {
-  return { done: {}, n: {}, dsa: [], notes: {}, note: '', finished: false, finishedAt: null }
+  return { done: {}, n: {}, dsa: [], notes: {}, picks: {}, note: '', finished: false, finishedAt: null }
 }
 
 export function emptyState(): TrackerState {
@@ -164,6 +165,7 @@ function validateDay(v: unknown): DayRecord {
       })
       .filter((e) => e.name !== ''),
     notes: strMap(v.notes),
+    picks: strMap(v.picks),
     note: str(v.note),
     finished: bool(v.finished),
     finishedAt,
