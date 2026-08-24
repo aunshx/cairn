@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { decodePick } from '../lib/catalogs'
+import { capFor } from '../lib/schedule'
 import { findNeetcodeBySlug, findNeetcodeIndex, NEETCODE_250 } from '../lib/neetcode'
 import { parseProblemInput } from '../lib/problems'
 import { getSupabase, TRACKER_TABLE } from '../lib/supabase'
@@ -352,7 +353,7 @@ export const setFinished =
     }))
 
 export const addDsa =
-  (day: number, raw: string): Recipe =>
+  (day: number, raw: string, slot?: string): Recipe =>
   (state) => {
     const parsed = parseProblemInput(raw)
     if (!parsed.name) return state
@@ -366,10 +367,19 @@ export const addDsa =
       solved: true,
       ...(parsed.url ?? listed?.url ? { url: parsed.url ?? listed?.url } : {}),
       ...(nc === null ? {} : { nc }),
+      ...(slot ? { slot } : {}),
     }
 
-    const withEntry = withDay(state, day, (record) => ({ ...record, dsa: [...record.dsa, entry] }))
-    return nc === null ? withEntry : setCatalog('dsa', nc, true)(withEntry)
+    let out = withDay(state, day, (record) => ({ ...record, dsa: [...record.dsa, entry] }))
+
+    if (slot) {
+      const cap = capFor(day, slot) ?? 0
+      const logged = (out.days[String(day)]?.dsa ?? []).filter((e) => e.slot === slot).length
+      const current = out.days[String(day)]?.n[slot] ?? 0
+      if (logged > current) out = setCount(day, slot, Math.min(cap, logged), cap)(out)
+    }
+
+    return nc === null ? out : setCatalog('dsa', nc, true)(out)
   }
 
 export const removeDsa =

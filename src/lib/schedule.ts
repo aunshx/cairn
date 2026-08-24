@@ -8,6 +8,7 @@ export type Task = {
   time?: string
   cap?: number
   pick?: CatalogKey[]
+  dsa?: boolean
 }
 
 export type Session = {
@@ -90,9 +91,9 @@ const DAY_A: Session[] = [
     title: 'Session 1',
     range: '05:30 – 11:00',
     tasks: [
-      { id: 'dsa1', label: '4 DSA', sub: '25-min cap each', time: '06:45', cap: 4 },
+      { id: 'dsa1', label: '4 DSA', sub: '25-min cap each', time: '06:45', cap: 4, dsa: true },
       { id: 'design', label: 'HLD problem', sub: DESIGN_SUB, time: '07:15', pick: ['hld', 'lld'] },
-      { id: 'dsa2', label: '3 DSA', sub: 'interleaved, not slabbed', time: '08:35', cap: 3 },
+      { id: 'dsa2', label: '3 DSA', sub: 'interleaved, not slabbed', time: '08:35', cap: 3, dsa: true },
       { id: 'quiz', label: '10 GFE quiz', time: '09:55' },
     ],
   },
@@ -117,9 +118,9 @@ function dayBSessions(build: Task): Session[] {
     title: 'Session 1',
     range: '05:30 – 11:00',
     tasks: [
-      { id: 'dsa1', label: '3 DSA', sub: '25-min cap each', time: '06:45', cap: 3 },
+      { id: 'dsa1', label: '3 DSA', sub: '25-min cap each', time: '06:45', cap: 3, dsa: true },
       { id: 'design', label: 'HLD problem', sub: DESIGN_SUB, time: '07:15', pick: ['hld', 'lld'] },
-      { id: 'dsa2', label: '2 DSA', time: '08:35', cap: 2 },
+      { id: 'dsa2', label: '2 DSA', time: '08:35', cap: 2, dsa: true },
       { id: 'lld', label: 'LLD problem', sub: LLD_SUB, time: '09:25', pick: ['lld'] },
     ],
   },
@@ -153,9 +154,9 @@ const DAY_M: Session[] = [
     title: 'Session 1',
     range: '05:30 – 11:00',
     tasks: [
-      { id: 'dsa1', label: '4 DSA', sub: 'redos from the queue first', time: '06:45', cap: 4 },
+      { id: 'dsa1', label: '4 DSA', sub: 'redos from the queue first', time: '06:45', cap: 4, dsa: true },
       { id: 'design', label: 'HLD problem', sub: DESIGN_SUB, time: '07:15', pick: ['hld', 'lld'] },
-      { id: 'dsa2', label: '3 DSA', time: '08:35', cap: 3 },
+      { id: 'dsa2', label: '3 DSA', time: '08:35', cap: 3, dsa: true },
       {
         id: 'revise',
         label: 'Revise the last 3 days',

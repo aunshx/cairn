@@ -6,6 +6,7 @@ import { Card } from '../ui/Card'
 import { DayNote } from './DayNote'
 import { DeltaLog } from './DeltaLog'
 import { DsaLog } from './DsaLog'
+import { NeetcodeDatalist } from './NeetcodeDatalist'
 import { RedoQueue } from './RedoQueue'
 import { RevisionPanel } from './RevisionPanel'
 import { TaskRow } from './TaskRow'
@@ -20,6 +21,7 @@ export function TodayView() {
 
   return (
     <div className="space-y-6">
+      <NeetcodeDatalist />
       <Card
         title="Schedule"
         meta={`${completion.done}/${completion.total} checked`}

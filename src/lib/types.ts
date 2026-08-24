@@ -8,6 +8,7 @@ export type DsaEntry = {
   solved: boolean
   url?: string
   nc?: number
+  slot?: string
 }
 
 export type Redo = {
@@ -166,7 +167,8 @@ function validateDay(v: unknown): DayRecord {
         const url = typeof e.url === 'string' && e.url !== '' ? { url: e.url } : {}
         const nc =
           typeof e.nc === 'number' && Number.isInteger(e.nc) && e.nc >= 0 ? { nc: e.nc } : {}
-        return { name: str(e.name), flag: bool(e.flag), solved: bool(e.solved), ...url, ...nc }
+        const slot = typeof e.slot === 'string' && e.slot !== '' ? { slot: e.slot } : {}
+        return { name: str(e.name), flag: bool(e.flag), solved: bool(e.solved), ...url, ...nc, ...slot }
       })
       .filter((e) => e.name !== ''),
     notes: strMap(v.notes),
