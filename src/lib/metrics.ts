@@ -44,7 +44,7 @@ export function isDone(record: DayRecord, taskId: string): boolean {
 }
 
 export function dayCompletion(state: TrackerState, day: number): { done: number; total: number; rate: number } {
-  const tasks = tasksFor(dayType(day))
+  const tasks = tasksFor(day)
   const record = dayRecord(state, day)
   const done = tasks.reduce((n, t) => (isDone(record, t.id) ? n + 1 : n), 0)
   return { done, total: tasks.length, rate: tasks.length === 0 ? 0 : done / tasks.length }
@@ -250,7 +250,7 @@ export function slips(state: TrackerState, limit = 5): Slip[] {
 
   for (const day of finishedDays(state)) {
     const record = dayRecord(state, day)
-    for (const task of tasksFor(dayType(day))) {
+    for (const task of tasksFor(day)) {
       register(task)
       const entry = stats.get(task.id) ?? { missed: 0, available: 0 }
       entry.available += 1

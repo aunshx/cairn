@@ -21,8 +21,7 @@ export type Session = {
 
 export function dayType(day: number): DayType {
   if (day % 7 === 0) return 'M'
-  const workIndex = day - Math.floor((day - 1) / 7)
-  return workIndex % 2 === 1 ? 'A' : 'B'
+  return (day - Math.floor((day - 1) / 7)) % 2 === 1 ? 'A' : 'B'
 }
 
 export function dayTypeLabel(type: DayType): string {
@@ -62,6 +61,16 @@ const EVENING_M: Session = {
   ],
 }
 
+const BUILD_AGENTIC: Task = { id: 'build', label: 'Agentic build, hard 2h cap', time: '13:00' }
+
+const BUILD_MECH: Task = {
+  id: 'build',
+  label: 'HLD mechanism, hard 2h cap',
+  sub: 'from scratch, one mechanism, not a whole system',
+  time: '13:00',
+  catalog: 'mech',
+}
+
 const DESIGN_SUB = 'reqs → 40m cold → answer key → delta'
 const LLD_SUB = 'reqs → class diagram → code core → delta'
 
@@ -88,7 +97,8 @@ const DAY_A: Session[] = [
   EVENING_AB,
 ]
 
-const DAY_B: Session[] = [
+function dayBSessions(build: Task): Session[] {
+  return [
   {
     title: 'Session 1',
     range: '05:30 – 11:00',
@@ -99,23 +109,27 @@ const DAY_B: Session[] = [
       { id: 'lld', label: 'LLD problem', sub: LLD_SUB, time: '09:25', catalog: 'lld' },
     ],
   },
-  BREAK_GYM,
-  {
-    title: 'Session 2',
-    range: '13:00 – 18:00',
-    tasks: [
-      { id: 'build', label: 'Agentic build, hard 2h cap', time: '13:00' },
-      { id: 'apps', label: '3 applications', time: '15:00', cap: 3 },
-      {
-        id: 'read',
-        label: 'Read 1 Key Tech page + blank-page recall',
-        sub: 'close it, write what you remember',
-        time: '16:00',
-      },
-    ],
-  },
-  EVENING_AB,
-]
+    BREAK_GYM,
+    {
+      title: 'Session 2',
+      range: '13:00 – 18:00',
+      tasks: [
+        build,
+        { id: 'apps', label: '3 applications', time: '15:00', cap: 3 },
+        {
+          id: 'read',
+          label: 'Read 1 Key Tech page + blank-page recall',
+          sub: 'close it, write what you remember',
+          time: '16:00',
+        },
+      ],
+    },
+    EVENING_AB,
+  ]
+}
+
+const DAY_B_AGENTIC = dayBSessions(BUILD_AGENTIC)
+const DAY_B_MECH = dayBSessions(BUILD_MECH)
 
 const DAY_M: Session[] = [
   {
@@ -142,22 +156,37 @@ const DAY_M: Session[] = [
   EVENING_M,
 ]
 
-export function sessionsFor(type: DayType): Session[] {
+export function workIndex(day: number): number {
+  return day - Math.floor((day - 1) / 7)
+}
+
+export function bDayOrdinal(day: number): number | null {
+  if (dayType(day) !== 'B') return null
+  return workIndex(day) / 2
+}
+
+export function isMechanismDay(day: number): boolean {
+  const ordinal = bDayOrdinal(day)
+  return ordinal !== null && ordinal % 2 === 0
+}
+
+export function sessionsFor(day: number): Session[] {
+  const type = dayType(day)
   if (type === 'A') return DAY_A
-  if (type === 'B') return DAY_B
-  return DAY_M
+  if (type === 'M') return DAY_M
+  return isMechanismDay(day) ? DAY_B_MECH : DAY_B_AGENTIC
 }
 
-export function tasksFor(type: DayType): Task[] {
-  return sessionsFor(type).flatMap((s) => s.tasks)
+export function tasksFor(day: number): Task[] {
+  return sessionsFor(day).flatMap((s) => s.tasks)
 }
 
-export function taskById(type: DayType, id: string): Task | null {
-  return tasksFor(type).find((t) => t.id === id) ?? null
+export function taskById(day: number, id: string): Task | null {
+  return tasksFor(day).find((t) => t.id === id) ?? null
 }
 
-export function capFor(type: DayType, id: string): number | null {
-  return taskById(type, id)?.cap ?? null
+export function capFor(day: number, id: string): number | null {
+  return taskById(day, id)?.cap ?? null
 }
 
 export type SlotResolution = {
@@ -184,12 +213,12 @@ function slotCatalog(slot: TaskCatalog, state: TrackerState): CatalogKey {
 type LinkedTask = { task: Task; catalog: CatalogKey }
 
 export function resolveDaySlots(
-  type: DayType,
+  day: number,
   state: TrackerState,
   record: DayRecord,
 ): Record<string, SlotResolution> {
   const linked: LinkedTask[] = []
-  for (const task of tasksFor(type)) {
+  for (const task of tasksFor(day)) {
     if (!task.catalog) continue
     linked.push({ task, catalog: slotCatalog(task.catalog, state) })
   }
