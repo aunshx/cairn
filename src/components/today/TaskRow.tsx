@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type MouseEvent } from 'react'
 import {
   setCatalog,
   setCount,
@@ -24,6 +24,8 @@ type TaskRowProps = {
   day: number
   record: DayRecord
 }
+
+const INTERACTIVE = 'button, a, input, select, textarea, label, [data-row-interactive]'
 
 function PencilIcon() {
   return (
@@ -61,13 +63,23 @@ export function TaskRow({ task, day, record }: TaskRowProps) {
     })
   }
 
+  function onRowClick(event: MouseEvent<HTMLDivElement>) {
+    const target = event.target
+    if (!(target instanceof Element)) return
+    if (target.closest(INTERACTIVE)) return
+    toggle(!done)
+  }
+
   return (
     <div
       className={`group border-t border-rule/50 transition-colors first:border-t-0 hover:bg-panel-2/40 ${
         done ? 'bg-signal/[0.04]' : ''
       }`}
     >
-      <div className="flex items-start gap-3.5 px-4 py-3 sm:px-5">
+      <div
+        onClick={onRowClick}
+        className="flex cursor-pointer items-start gap-3.5 px-4 py-3 sm:px-5"
+      >
         <div className="pt-0.5">
           <Checkbox checked={done} onChange={toggle} label={label} />
         </div>
@@ -82,7 +94,8 @@ export function TaskRow({ task, day, record }: TaskRowProps) {
           </p>
 
           {task.pick && (
-            <CatalogPicker
+            <div data-row-interactive>
+              <CatalogPicker
               catalogs={task.pick}
               value={record.picks[task.id]}
               checked={{
@@ -93,20 +106,31 @@ export function TaskRow({ task, day, record }: TaskRowProps) {
                 beh: state.beh,
                 dsa: state.dsa,
               }}
-              label={`${task.label} for day ${day}`}
-              onChange={(next) => update(setPick(day, task.id, next))}
-            />
+                label={`${task.label} for day ${day}`}
+                onChange={(next) => update(setPick(day, task.id, next))}
+              />
+            </div>
           )}
 
           {subtitle && <p className="mt-1 text-[12px] leading-snug text-muted">{subtitle}</p>}
 
           {task.dsa && task.cap !== undefined && (
-            <DsaSlots day={day} slot={task.id} cap={task.cap} record={record} />
+            <div data-row-interactive>
+              <DsaSlots day={day} slot={task.id} cap={task.cap} record={record} />
+            </div>
           )}
 
-          {task.apps && task.cap !== undefined && <AppSlots day={day} cap={task.cap} />}
+          {task.apps && task.cap !== undefined && (
+            <div data-row-interactive>
+              <AppSlots day={day} cap={task.cap} />
+            </div>
+          )}
 
-          {task.gym && <GymSelect day={day} taskId={task.id} record={record} />}
+          {task.gym && (
+            <div data-row-interactive>
+              <GymSelect day={day} taskId={task.id} record={record} />
+            </div>
+          )}
         </div>
 
         <div className="flex shrink-0 items-center gap-2 pt-0.5">
