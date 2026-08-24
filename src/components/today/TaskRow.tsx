@@ -1,0 +1,123 @@
+import { useState } from 'react'
+import { setCatalog, setCount, setMechResult, setTaskNote, toggleTask, useTracker } from '../../hooks/useTracker'
+import type { SlotResolution, Task } from '../../lib/schedule'
+import type { DayRecord } from '../../lib/types'
+import { Checkbox } from '../ui/Checkbox'
+import { CounterControl } from './CounterControl'
+import { NoteField } from './NoteField'
+
+type TaskRowProps = {
+  task: Task
+  day: number
+  record: DayRecord
+  slot?: SlotResolution
+}
+
+function PencilIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true" className="size-3.5">
+      <path
+        d="M11.5 2.5 13.5 4.5 5.5 12.5 2.5 13.5 3.5 10.5z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export function TaskRow({ task, day, record, slot }: TaskRowProps) {
+  const { state, update } = useTracker()
+  const [open, setOpen] = useState(false)
+
+  const done = record.done[task.id] === true
+  const count = record.n[task.id] ?? 0
+  const note = record.notes[task.id] ?? ''
+  const isMech = task.catalog === 'mech' && slot?.catalog === 'mech'
+  const mechValue = slot ? (state.mechResults[slot.index] ?? '') : ''
+  const label = slot?.relabel ?? task.label
+  const subtitle = slot?.item.measure ?? task.sub
+
+  function toggle(next: boolean) {
+    update((s) => {
+      const withTask = toggleTask(day, task.id, task.cap ?? null)(s)
+      return slot ? setCatalog(slot.catalog, slot.index, next)(withTask) : withTask
+    })
+  }
+
+  return (
+    <div className={`border-t border-rule/60 first:border-t-0 ${done ? 'bg-signal/[0.03]' : ''}`}>
+      <div className="flex items-start gap-3 px-3 py-2.5 sm:px-4">
+        <div className="pt-0.5">
+          <Checkbox checked={done} onChange={toggle} label={label} />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className={`text-[14px] leading-snug ${done ? 'text-muted line-through decoration-rule' : 'text-ink'}`}>
+            {label}
+          </p>
+
+          {slot && (
+            <p className="mt-0.5 font-mono text-[11px] text-signal/90">
+              <span className="text-dim">{String(slot.index + 1).padStart(2, '0')} · </span>
+              {slot.item.name}
+              {slot.item.tag && <span className="text-dim"> · {slot.item.tag}</span>}
+            </p>
+          )}
+
+          {subtitle && <p className="mt-0.5 text-[12px] leading-snug text-muted">{subtitle}</p>}
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2 pt-0.5">
+          {task.cap !== undefined ? (
+            <CounterControl
+              value={count}
+              cap={task.cap}
+              label={task.label}
+              onChange={(next) => update(setCount(day, task.id, next, task.cap ?? 0))}
+            />
+          ) : (
+            task.time && <span className="font-mono text-[11px] tabular-nums text-dim">{task.time}</span>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-label={`${open ? 'Hide' : 'Add'} note for ${label}`}
+            className={`flex size-6 items-center justify-center border transition-colors ${
+              note || (isMech && mechValue)
+                ? 'border-flag/50 text-flag'
+                : 'border-transparent text-dim hover:border-rule hover:text-ink'
+            }`}
+          >
+            <PencilIcon />
+          </button>
+        </div>
+      </div>
+
+      {open && (
+        <div className="space-y-3 border-t border-rule/60 bg-panel-2/40 px-3 py-3 sm:px-4">
+          {isMech && slot && (
+            <label className="block">
+              <span className="micro mb-1.5 block">The number</span>
+              <input
+                value={mechValue}
+                onChange={(e) => update(setMechResult(slot.index, e.target.value))}
+                placeholder={slot.item.measure ?? 'what you measured'}
+                className="w-full border border-rule bg-panel-2 px-3 py-1.5 font-mono text-[12px] text-ink outline-none focus:border-signal"
+              />
+            </label>
+          )}
+          <NoteField
+            value={note}
+            onChange={(next) => update(setTaskNote(day, task.id, next))}
+            label="Note"
+            placeholder="Scoped to this day"
+          />
+        </div>
+      )}
+    </div>
+  )
+}

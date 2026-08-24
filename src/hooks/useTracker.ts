@@ -395,6 +395,10 @@ export const toggleCatalog =
     return { ...state, [key]: { ...map, [id]: !map[id] } }
   }
 
+export const setCatalog =
+  (key: CatalogKey, index: number, value: boolean): Recipe =>
+  (state) => ({ ...state, [key]: { ...state[key], [String(index)]: value } })
+
 export const setCatalogNote =
   (key: CatalogKey, index: number, note: string): Recipe =>
   (state) => ({ ...state, notes: { ...state.notes, [`${key}:${index}`]: note } })
