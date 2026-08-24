@@ -34,7 +34,7 @@ export function Heatmap({ state, onJump }: HeatmapProps) {
     >
       <div className="flex flex-wrap items-start gap-x-8 gap-y-4">
         <div
-          className="grid w-max shrink-0 grid-cols-7 gap-1"
+          className="grid w-max shrink-0 grid-cols-7 gap-1.5"
           role="group"
           aria-label="Completion by day"
         >
@@ -49,24 +49,24 @@ export function Heatmap({ state, onJump }: HeatmapProps) {
                 title={`Day ${cell.day} · ${mock ? 'M' : cell.type} · ${cell.done}/${cell.total} · ${formatShortDate(state.start, cell.day)}`}
                 aria-label={`Day ${cell.day}, ${mock ? 'mock day' : `type ${cell.type}`}, ${cell.done} of ${cell.total} checked`}
                 aria-current={cell.day === state.day ? 'true' : undefined}
-                className={`relative size-6 rounded-[3px] transition-all duration-150 hover:scale-110 ${
+                className={`relative flex size-11 items-center justify-center rounded-md transition-all duration-150 hover:scale-105 ${
                   mock ? 'border border-dashed border-dim/70' : cell.rate === 0 ? 'border border-rule/50' : ''
                 } ${cell.day === state.day ? 'ring-1 ring-signal ring-offset-1 ring-offset-panel' : ''}`}
               >
                 <span
                   aria-hidden="true"
-                  className={`absolute inset-0 rounded-[2px] ${
+                  className={`absolute inset-0 rounded-md ${
                     full ? 'bg-gradient-to-br from-signal to-accent' : 'bg-signal'
                   }`}
                   style={full ? undefined : { opacity: cell.rate === 0 ? 0 : 0.12 + cell.rate * 0.7 }}
                 />
-                <span className="relative font-mono text-[8px] leading-none text-ink/50">{cell.day}</span>
+                <span className="relative font-mono text-[11px] leading-none tabular-nums text-ink/70">{cell.day}</span>
               </button>
             )
           })}
         </div>
 
-        <p className="max-w-xs text-[12px] leading-relaxed text-muted">
+        <p className="max-w-sm text-[12px] leading-relaxed text-muted">
           {anyStarted
             ? 'Each cell darkens with the share of that day you checked off. M days stay outlined so mock days read differently. Click any cell to jump to it.'
             : 'Each cell will fill in proportion to how much of that day you check off. M days stay outlined so mock days read differently from ordinary ones. Nothing here until the first day is worked.'}
