@@ -143,7 +143,8 @@ One JSON blob per user:
       finishedAt: "2026-08-25T20:14:00Z"
     }
   },
-  hld: {}, lld: {}, gfe: {}, beh: {},   // catalog index -> bool
+  hld: {}, lld: {}, gfe: {}, mech: {}, beh: {},   // catalog index -> bool
+  mechResults: {},             // mech index -> the number measured, free text
   notes: {},                   // "hld:4" -> note, persists across all 42 days
   deltas: [{day, prob, missed, wrong, ask}],
   redos: [{name, due:[d1,d2,d3], cleared:[]}]
@@ -152,9 +153,10 @@ One JSON blob per user:
 
 ## Day type
 
-- Every 7th day is rest (`day % 7 === 0`).
-- Working days alternate A, B, skipping rest days.
+- Every 7th day is a mock day, type `M` (`day % 7 === 0`).
+- All other days alternate A, B, skipping M days.
 - `workIndex = day - floor((day-1)/7)`; odd is A, even is B.
+- There are no rest days. 36 A/B days and 6 M days across the 42.
 
 ---
 
@@ -176,8 +178,9 @@ Session headers are non-interactive dividers with a time range. Each task row: c
 
 Counter tasks (`dsa1`: 4, `dsa2`: 3, `apps`: 3) render `−  2/4  +`. The checkbox toggles between 0 and the cap.
 
-Three tasks pull from the catalog, showing the next unchecked item and auto-marking it when ticked:
-- `design` → next HLD on A days, next LLD on B days, with the paired reading in the subtitle
+Four tasks pull from the catalog, showing the next unchecked item and auto-marking it when ticked:
+- `design` → next HLD, on every day type, with the paired reading in the subtitle. Once all 31 HLD are done, this slot relabels to "LLD second pass" and serves the next uncleared LLD instead.
+- `lld` → next LLD, on B days
 - `gfe` → next GFE component
 - `beh` → next behavioral item
 
@@ -202,23 +205,48 @@ Evening · 18:00 – 21:00
 ```
 
 ### Day B
-Same, with these swaps and no `quiz`, no `gfe`:
+Carries both design problems, so DSA drops to 5. No `quiz`, no `gfe`.
 ```
-  design LLD problem                    reqs → class diagram → code core → delta 07:15
-  read   Read 1 Key Tech page + blank-page recall   close it, write what you remember  09:55
-  build  Agentic build, hard 2h cap                                              13:00
+Session 1 · 05:30 – 11:00
+  dsa1   3 DSA                          25-min cap each                          06:45
+  design HLD problem                    reqs → 40m cold → answer key → delta     07:15
+  dsa2   2 DSA                                                                   08:35
+  lld    LLD problem                    reqs → class diagram → code core → delta 09:25
+Break + Gym 1 · 11:15 – 12:00
+  gym1   Cardio, 45 min
+Session 2 · 13:00 – 18:00
+  build  Build slot, hard 2h cap        alternates agentic / HLD mechanism        13:00
   apps   3 applications                                                          15:00
-  build2 Second build hour or overflow                                           16:00
+  read   Read 1 Key Tech page + blank-page recall   close it, write what you remember  16:00
+Evening · 18:00 – 21:00
+  gym2   Weights, 60 min
+  rev    Revision block                 logs → 1 DSA redo → blank-page recall     19:45
+  beh    Behavioral, 15 min
+  walk   Walk, 20 min
+  bed    Screens off 20:30, bed 21:00
 ```
+Counter caps on B days: `dsa1` 3, `dsa2` 2. The `lld` task pulls from the LLD catalog exactly as `design` pulls from HLD.
 
-### Rest day
+### Day M — mock and revision
+Lighter cognitive load by design: output and consolidation, no new material beyond the one HLD.
 ```
-Rest day · Nothing is owed today
-  wake   Wake 05:00 anyway              the anchor holds on rest days too
-  li     Batch 3 LinkedIn posts, 30 min schedule Mon/Wed/Fri morning
-  gym1   Walk or light cardio
-  logs   Skim delta logs, 15 min
-  off    Rest. Actually rest.
+Session 1 · 05:30 – 11:00
+  dsa1   4 DSA                          redos from the queue first               06:45
+  design HLD problem                    reqs → 40m cold → answer key → delta     07:15
+  dsa2   3 DSA                                                                   08:35
+  logs   Reread every delta log to date                                          09:55
+Break + Gym 1 · 11:15 – 12:00
+  gym1   Cardio, 45 min
+Session 2 · 13:00 – 18:00
+  mock1  Mock: system design, 45 min     recorded, camera on                     13:00
+  mock2  Mock: coding or behavioral      recorded, camera on                     14:00
+  redo   One past LLD cold, code included                                        15:00
+  li     Batch 3 LinkedIn posts          schedule Mon/Wed/Fri morning            16:00
+Evening · 18:00 – 21:00
+  gym2   Weights, 60 min
+  rev    Revision block                  blank-page recall on today's HLD        19:45
+  walk   Walk, 20 min
+  bed    Screens off 20:30, bed 21:00
 ```
 
 ## DSA log
@@ -249,6 +277,7 @@ Everything computed from stored state. No extra tracking. Every number needs a o
 - **Completion rate** — checked tasks over available tasks across all finished days, as a percentage.
 - **Flag rate, last 7 days** — flagged DSA over total DSA logged. Falling means retention is improving. Show the delta against the previous 7 days with a direction arrow.
 - **Projected finish** — at the current 7-day rate, which day each track lands on. Show the track furthest behind pace.
+- **Mocks completed** — count of `mock1` and `mock2` checked across all M days, against a target of 12.
 
 ## Row 2 — burn-up chart
 
@@ -256,7 +285,7 @@ Inline SVG, cumulative DSA problems against day number, with a straight target l
 
 ## Row 3 — completion heatmap
 
-A 6×7 grid, one cell per day, opacity scaled to that day's completion rate. Rest days outlined rather than filled. Hover shows day number, type, and rate. Empty future days are hairline outlines only.
+A 6×7 grid, one cell per day, opacity scaled to that day's completion rate. M days outlined rather than filled. Hover shows day number, type, and rate. Empty future days are hairline outlines only.
 
 ## Row 4 — two panels side by side
 
@@ -280,16 +309,30 @@ The five most recent delta log entries and day notes interleaved by day, newest 
 
 # 9. Catalog view
 
-Tabs: HLD, LLD, GFE, Behavioral. Each row: index, checkbox, name, a short tag, pencil icon. Clicking the name or pencil expands a textarea into `notes["hld:4"]`, persisting across all 42 days. A search input filters within the active tab. A count of done over total per tab.
+Tabs: HLD, LLD, GFE, Mechanisms, Behavioral. Each row: index, checkbox, name, a short tag, pencil icon. Clicking the name or pencil expands a textarea into `notes["hld:4"]`, persisting across all 42 days. A search input filters within the active tab. A count of done over total per tab.
 
 **HLD** (name · read-this-first):
-Bitly ·, Rate Limiter · Redis, Distributed Cache · Consistent Hashing, LeetCode · PostgreSQL, WhatsApp · Real-time Updates, Tinder · Proximity Search, Yelp · Elasticsearch, Instagram · Scaling Reads, FB News Feed · Large Blobs, Ticketmaster · Contention, Online Auction · DynamoDB, Job Scheduler · Long Running Tasks, Notification System · Kafka, YouTube · Large Blobs, Dropbox ·, Web Crawler · Scaling Writes, FB Post Search · Elasticsearch, Ad Click Aggregator · Flink, YouTube Top K · Big Data DS, Metrics Monitoring · Time Series DB, Price Tracking · Change Data Capture, Local Delivery · Cassandra, Strava ·, Uber · Proximity Search, Payment System · Multi-step, Robinhood · ZooKeeper, Google Docs · Real-time Updates, Online Chess ·, ChatGPT · Vector DBs, News Aggregator ·, FB Live Comments · Real-time
+Bitly ·, Rate Limiter · Redis, Distributed Cache · Consistent Hashing, LeetCode · PostgreSQL, WhatsApp · Real-time Updates, Tinder · Proximity Search, Yelp · Elasticsearch, Instagram · Scaling Reads, FB News Feed · Large Blobs, Ticketmaster · Contention, Online Auction · DynamoDB, Job Scheduler · Long Running Tasks, Notification System · Kafka, YouTube · Large Blobs, Dropbox ·, Web Crawler · Scaling Writes, FB Post Search · Elasticsearch, Payment System · Multi-step, YouTube Top K · Big Data DS, Metrics Monitoring · Time Series DB, Price Tracking · Change Data Capture, Local Delivery · Cassandra, Strava ·, Uber · Proximity Search, Ad Click Aggregator · Flink, Robinhood · ZooKeeper, Google Docs · Real-time Updates, Online Chess ·, ChatGPT · Vector DBs, News Aggregator ·, FB Live Comments · Real-time
 
 **LLD** (name · source):
 Parking Lot · HI, Connect Four · HI, Amazon Locker · HI, Elevator · HI, Movie Ticket Booking · HI, Inventory Management · HI concurrency first, File System · HI, Logging Service · HI, Rate Limiter · HI, LRU Cache · LC, Underground System · LC, Hit Counter · LC, Browser History · LC, Twitter · LC, Search Autocomplete · LC, In-Memory File System · LC, Snake Game · LC, Text Editor · LC, Tic Tac Toe · LC
 
 **GFE** (name · concept), easiest to hardest:
 Accordion · state, Tabs · state, Modal / Dialog · focus trap, Tooltip · positioning, Star Rating · state, Progress Bar · animation, Todo List · CRUD, Digital Clock · timers, Autocomplete · debounce + async, Data Table sort/filter · derived state, Pagination · async, Infinite Scroll · IntersectionObserver, File Upload with progress · async, Image Carousel · preload, Virtualized List · windowing, Drag and Drop List · pointer events, Nested Comments · recursion, Poll Widget · optimistic update
+
+**Mechanisms** (name · ties to · what to measure). These are 2-hour from-scratch implementations of one mechanism inside an HLD problem, not whole systems:
+Token bucket in Redis · Rate Limiter · allowed under burst vs sustained,
+Consistent hashing ring · Distributed Cache · % keys remapped at 1 vs 150 vnodes,
+Optimistic lock vs SELECT FOR UPDATE · Ticketmaster · double-bookings per 1000 attempts,
+Append-only log with offsets · Notification System · throughput and restart behaviour,
+Bloom filter · Web Crawler · false positive rate vs bits per element,
+Count-min sketch + min-heap · YouTube Top K · memory vs exact, error at p99,
+Geohash vs quadtree · Tinder / Uber · query latency at 1M points,
+Idempotency keys + outbox · Payment System · duplicate charges under retry storm,
+Presigned multipart upload · Dropbox · time to first byte, server memory,
+WebSocket fan-out with rooms · FB Live Comments · connections before degradation,
+LWW register then a small CRDT · Google Docs · convergence after concurrent edits,
+Cosine brute force vs HNSW · ChatGPT · recall vs latency at 100k vectors
 
 **Behavioral** — ten tagged `course`:
 Why the Behavioral Matters, Decode: How Interviews Work, Select: Choosing Responses, Deliver: Telling a Good Story, The Big Three Questions, Adapting to Big Tech, Practicing, Common Pitfalls, Special Interview Types, Answering AI Questions
