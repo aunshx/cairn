@@ -118,6 +118,8 @@ defaults rather than crashing.
 - Catalog-backed tasks are picked, not prescribed: choose what you actually did from the list, or
   type something that is not on it
 - Delta logs, a spaced-repetition redo queue at +3 / +10 / +30 days, and measured mechanism results
+- Applications as records — company, position, job URL and a status you move along as you hear back
+  (applied → screen → onsite → offer, or rejected / ghosted) — with their own Jobs tab in the catalog
 
 Day types run a three-work-day cycle: every 4th day is **M**, a mock and revision day. The rest
 alternate **A** and **B**, skipping M days — 16 A days, 16 B days, 10 M days. Every second B day

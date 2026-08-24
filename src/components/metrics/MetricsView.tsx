@@ -1,5 +1,6 @@
 import { goToDay, useTracker } from '../../hooks/useTracker'
 import {
+  applicationStats,
   completionRate,
   currentStreak,
   flagRate,
@@ -10,7 +11,8 @@ import {
   percent,
   worstProjection,
 } from '../../lib/metrics'
-import { MOCK_TARGET, TOTAL_DAYS } from '../../lib/types'
+import { APPS_TARGET, MOCK_TARGET, TOTAL_DAYS } from '../../lib/types'
+import { ApplicationFunnel } from './ApplicationFunnel'
 import { BurnUpChart } from './BurnUpChart'
 import { Heatmap } from './Heatmap'
 import { RecentNotes } from './RecentNotes'
@@ -29,6 +31,7 @@ export function MetricsView() {
   const worst = worstProjection(state, day)
   const mocks = mocksCompleted(state)
   const missed = missedTasks(state)
+  const apps = applicationStats(state)
   const habits = [
     { id: 'nodrink', label: 'Alcohol-free run' },
     { id: 'nosmoke', label: 'Smoke-free run' },
@@ -125,6 +128,18 @@ export function MetricsView() {
           }
         />
 
+        <StatBlock
+          label="Applications out"
+          value={`${apps.total}`}
+          detail={apps.total > 0 ? `${apps.inFlight} in flight` : `of ${APPS_TARGET}`}
+          tone={apps.offers > 0 ? 'good' : 'neutral'}
+          reading={
+            apps.total === 0
+              ? 'Company, position and job URL, logged on the applications row in Today.'
+              : `${percent(apps.responseRate)} have answered. ${apps.offers} at offer, ${apps.byStatus.rejected} rejected, ${apps.byStatus.ghosted} silent.`
+          }
+        />
+
         {habits.map((habit) => (
           <StatBlock
             key={habit.id}
@@ -142,6 +157,8 @@ export function MetricsView() {
       </div>
 
       <BurnUpChart state={state} />
+
+      <ApplicationFunnel state={state} />
 
       <Heatmap state={state} onJump={jump} />
 
