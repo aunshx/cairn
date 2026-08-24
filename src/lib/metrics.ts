@@ -1,10 +1,22 @@
 import { CATALOGS, countDone } from './catalogs'
 import { ALL_DAYS, dayType, tasksFor, type Task } from './schedule'
-import { DSA_TARGET, TOTAL_DAYS, emptyDay, type CatalogKey, type DayRecord, type DayType, type Delta, type Redo, type TrackerState } from './types'
+import {
+  APPS_TARGET,
+  DSA_TARGET,
+  MOCK_TARGET,
+  TOTAL_DAYS,
+  emptyDay,
+  type CatalogKey,
+  type DayRecord,
+  type DayType,
+  type Delta,
+  type Redo,
+  type TrackerState,
+} from './types'
 
-export type TrackKey = CatalogKey | 'dsa'
+export type TrackKey = CatalogKey | 'dsa' | 'apps' | 'mock'
 
-export const TRACK_ORDER: TrackKey[] = ['hld', 'lld', 'gfe', 'beh', 'dsa']
+export const TRACK_ORDER: TrackKey[] = ['hld', 'lld', 'gfe', 'beh', 'dsa', 'apps', 'mock']
 
 export const TRACK_LABEL: Record<TrackKey, string> = {
   hld: 'HLD',
@@ -12,6 +24,8 @@ export const TRACK_LABEL: Record<TrackKey, string> = {
   gfe: 'GFE',
   beh: 'Behavioral',
   dsa: 'DSA',
+  apps: 'Applications',
+  mock: 'Mocks',
 }
 
 const EMPTY = emptyDay()
@@ -103,12 +117,30 @@ export function flagRate(state: TrackerState, day: number): FlagRate {
   }
 }
 
+const FIXED_TARGET: Partial<Record<TrackKey, number>> = {
+  dsa: DSA_TARGET,
+  apps: APPS_TARGET,
+  mock: MOCK_TARGET,
+}
+
+export function mockCount(record: DayRecord): number {
+  return (isDone(record, 'mock1') ? 1 : 0) + (isDone(record, 'mock2') ? 1 : 0)
+}
+
+export function mocksCompleted(state: TrackerState): number {
+  return ALL_DAYS.reduce((n, d) => (dayType(d) === 'M' ? n + mockCount(dayRecord(state, d)) : n), 0)
+}
+
 export function trackTotal(track: TrackKey): number {
-  return track === 'dsa' ? DSA_TARGET : CATALOGS[track].items.length
+  const fixed = FIXED_TARGET[track]
+  if (fixed !== undefined) return fixed
+  return CATALOGS[track as CatalogKey].items.length
 }
 
 export function trackDone(state: TrackerState, track: TrackKey): number {
   if (track === 'dsa') return ALL_DAYS.reduce((n, d) => n + dsaCount(dayRecord(state, d)), 0)
+  if (track === 'apps') return ALL_DAYS.reduce((n, d) => n + (dayRecord(state, d).n.apps ?? 0), 0)
+  if (track === 'mock') return mocksCompleted(state)
   return countDone(state[track], track)
 }
 
@@ -116,10 +148,12 @@ function trackDoneOnDay(state: TrackerState, track: TrackKey, day: number): numb
   const type = dayType(day)
   const record = dayRecord(state, day)
   if (track === 'dsa') return dsaCount(record)
+  if (track === 'apps') return record.n.apps ?? 0
+  if (track === 'mock') return type === 'M' ? mockCount(record) : 0
   if (track === 'beh') return isDone(record, 'beh') ? 1 : 0
   if (track === 'gfe') return type === 'A' && isDone(record, 'gfe') ? 1 : 0
-  if (track === 'hld') return type === 'A' && isDone(record, 'design') ? 1 : 0
-  return type === 'B' && isDone(record, 'design') ? 1 : 0
+  if (track === 'hld') return isDone(record, 'design') ? 1 : 0
+  return type === 'B' && isDone(record, 'lld') ? 1 : 0
 }
 
 export type TrackProgress = {
