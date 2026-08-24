@@ -9,6 +9,7 @@ export type Task = {
   cap?: number
   pick?: CatalogKey[]
   dsa?: boolean
+  apps?: boolean
 }
 
 export type Session = {
@@ -103,7 +104,14 @@ const DAY_A: Session[] = [
     range: '13:00 – 18:00',
     tasks: [
       { id: 'gfe', label: 'GFE component, timed 2h', sub: 'no AI, no docs tab', time: '13:00', pick: ['gfe'] },
-      { id: 'apps', label: '3 applications', sub: '2 A-tier max, rest assembly', time: '15:00', cap: 3 },
+      {
+        id: 'apps',
+        label: '3 applications',
+        sub: '2 A-tier max, rest assembly',
+        time: '15:00',
+        cap: 3,
+        apps: true,
+      },
       { id: 'beh', label: 'Behavioral, 15 min', time: '17:00', pick: ['beh'] },
     ],
   },
@@ -130,7 +138,7 @@ function dayBSessions(build: Task): Session[] {
       range: '13:00 – 18:00',
       tasks: [
         build,
-        { id: 'apps', label: '3 applications', time: '15:00', cap: 3 },
+        { id: 'apps', label: '3 applications', time: '15:00', cap: 3, apps: true },
         {
           id: 'read',
           label: 'Read 1 Key Tech page + blank-page recall',

@@ -17,6 +17,34 @@ export type Redo = {
   cleared: number[]
 }
 
+export const APPLICATION_STATUSES = [
+  'applied',
+  'screen',
+  'onsite',
+  'offer',
+  'rejected',
+  'ghosted',
+] as const
+
+export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number]
+
+export const APPLICATION_STATUS_LABEL: Record<ApplicationStatus, string> = {
+  applied: 'Applied',
+  screen: 'Screen',
+  onsite: 'Onsite',
+  offer: 'Offer',
+  rejected: 'Rejected',
+  ghosted: 'Ghosted',
+}
+
+export type Application = {
+  day: number
+  company: string
+  role: string
+  url?: string
+  status: ApplicationStatus
+}
+
 export type Delta = {
   day: number
   prob: string
@@ -50,6 +78,7 @@ export type TrackerState = {
   notes: Record<string, string>
   deltas: Delta[]
   redos: Redo[]
+  applications: Application[]
 }
 
 export type SaveState = 'saved' | 'unsaved' | 'saving' | 'failed'
@@ -152,6 +181,7 @@ export function emptyState(): TrackerState {
     notes: {},
     deltas: [],
     redos: [],
+    applications: [],
   }
 }
 
@@ -219,5 +249,21 @@ export function validateState(raw: unknown): TrackerState {
       .filter(isRecord)
       .map((r) => ({ name: str(r.name), due: dayNumbers(r.due), cleared: dayNumbers(r.cleared) }))
       .filter((r) => r.name !== '' && r.due.length > 0),
+    applications: arr(raw.applications)
+      .filter(isRecord)
+      .map((a) => {
+        const status = str(a.status, 'applied')
+        const url = typeof a.url === 'string' && a.url !== '' ? { url: a.url } : {}
+        return {
+          day: Math.min(TOTAL_DAYS, Math.max(1, int(a.day, 1))),
+          company: str(a.company),
+          role: str(a.role),
+          status: (APPLICATION_STATUSES as readonly string[]).includes(status)
+            ? (status as ApplicationStatus)
+            : 'applied',
+          ...url,
+        }
+      })
+      .filter((a) => a.company !== ''),
   }
 }

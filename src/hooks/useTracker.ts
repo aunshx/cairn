@@ -10,6 +10,7 @@ import {
   validateState,
   type CatalogKey,
   type DayRecord,
+  type Application,
   type Delta,
   type DsaEntry,
   type Redo,
@@ -438,6 +439,41 @@ export const clearRedo =
 export const removeRedo =
   (index: number): Recipe =>
   (state) => ({ ...state, redos: state.redos.filter((_, i) => i !== index) })
+
+export const addApplication =
+  (day: number, company: string, role: string, url: string): Recipe =>
+  (state) => {
+    const name = company.trim()
+    if (!name) return state
+
+    const entry: Application = {
+      day,
+      company: name,
+      role: role.trim(),
+      status: 'applied',
+      ...(url.trim() ? { url: url.trim() } : {}),
+    }
+
+    let out = { ...state, applications: [...state.applications, entry] }
+
+    const cap = capFor(day, 'apps') ?? 0
+    const logged = out.applications.filter((a) => a.day === day).length
+    const current = out.days[String(day)]?.n.apps ?? 0
+    if (cap > 0 && logged > current) out = setCount(day, 'apps', Math.min(cap, logged), cap)(out)
+
+    return out
+  }
+
+export const updateApplication =
+  (index: number, patch: Partial<Application>): Recipe =>
+  (state) => ({
+    ...state,
+    applications: state.applications.map((a, i) => (i === index ? { ...a, ...patch } : a)),
+  })
+
+export const removeApplication =
+  (index: number): Recipe =>
+  (state) => ({ ...state, applications: state.applications.filter((_, i) => i !== index) })
 
 export const appendDelta =
   (delta: Delta): Recipe =>

@@ -2,12 +2,15 @@ import { CATALOGS, countDone, decodePick } from './catalogs'
 import { NEETCODE_250, type Difficulty } from './neetcode'
 import { ALL_DAYS, dayType, isMechanismDay, tasksFor, type Task } from './schedule'
 import {
+  APPLICATION_STATUSES,
   APPS_TARGET,
   DSA_TARGET,
   MECH_TARGET,
   MOCK_TARGET,
   TOTAL_DAYS,
   emptyDay,
+  type Application,
+  type ApplicationStatus,
   type CatalogKey,
   type DayRecord,
   type DayType,
@@ -426,6 +429,42 @@ export function revisionQueue(state: TrackerState, day: number, lookback = 3): R
 
 export function revisionKey(item: RevisionItem): string {
   return `revise:${item.key}`
+}
+
+export type ApplicationStats = {
+  total: number
+  byStatus: Record<ApplicationStatus, number>
+  inFlight: number
+  responded: number
+  responseRate: number | null
+  offers: number
+}
+
+export function applicationStats(state: TrackerState): ApplicationStats {
+  const byStatus = Object.fromEntries(
+    APPLICATION_STATUSES.map((s) => [s, 0]),
+  ) as Record<ApplicationStatus, number>
+
+  for (const app of state.applications) byStatus[app.status] += 1
+
+  const total = state.applications.length
+  const inFlight = byStatus.applied + byStatus.screen + byStatus.onsite
+  const responded = byStatus.screen + byStatus.onsite + byStatus.offer + byStatus.rejected
+
+  return {
+    total,
+    byStatus,
+    inFlight,
+    responded,
+    responseRate: total === 0 ? null : responded / total,
+    offers: byStatus.offer,
+  }
+}
+
+export function applicationsForDay(state: TrackerState, day: number): { app: Application; index: number }[] {
+  return state.applications
+    .map((app, index) => ({ app, index }))
+    .filter(({ app }) => app.day === day)
 }
 
 export type NoteItem =
