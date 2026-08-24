@@ -12,17 +12,17 @@ type CardProps = {
 export function Card({ title, meta, actions, children, className = '', bodyClassName = '' }: CardProps) {
   const hasHeader = Boolean(title || meta || actions)
   return (
-    <section className={`border border-rule bg-panel ${className}`}>
+    <section className={`surface overflow-hidden ${className}`}>
       {hasHeader && (
-        <header className="flex items-baseline justify-between gap-3 border-b border-rule px-4 py-2.5">
-          <div className="flex items-baseline gap-3 min-w-0">
-            {title && <h2 className="micro truncate">{title}</h2>}
-            {meta && <div className="micro text-dim truncate">{meta}</div>}
+        <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-rule/70 px-4 py-3 sm:px-5">
+          <div className="flex min-w-0 items-baseline gap-3">
+            {title && <h2 className="micro text-ink/90">{title}</h2>}
+            {meta && <div className="truncate font-mono text-[11px] text-dim">{meta}</div>}
           </div>
           {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
         </header>
       )}
-      <div className={bodyClassName || 'p-4'}>{children}</div>
+      <div className={bodyClassName || 'p-4 sm:p-5'}>{children}</div>
     </section>
   )
 }

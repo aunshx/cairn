@@ -34,20 +34,20 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       onClick={(e) => {
         if (e.target === ref.current) onClose()
       }}
-      className="m-auto w-[min(34rem,calc(100vw-2rem))] border border-rule bg-panel p-0 text-ink backdrop:bg-ground/80"
+      className="surface m-auto w-[min(36rem,calc(100vw-2rem))] p-0 text-ink backdrop:bg-ground/70 backdrop:backdrop-blur-sm"
     >
-      <header className="flex items-center justify-between gap-4 border-b border-rule px-4 py-3">
-        <h2 className="micro">{title}</h2>
+      <header className="flex items-center justify-between gap-4 border-b border-rule/70 px-5 py-4">
+        <h2 className="micro text-ink/90">{title}</h2>
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="font-mono text-[11px] text-muted hover:text-ink"
+          className="rounded-md px-2 py-1 font-mono text-[11px] text-muted transition-colors hover:bg-panel-2 hover:text-ink"
         >
           ESC
         </button>
       </header>
-      <div className="p-4">{children}</div>
+      <div className="p-5">{children}</div>
     </dialog>
   )
 }
