@@ -5,6 +5,10 @@ import { findNeetcodeBySlug, findNeetcodeIndex, NEETCODE_250 } from '../lib/neet
 import { parseProblemInput } from '../lib/problems'
 import { getSupabase, TRACKER_TABLE } from '../lib/supabase'
 import {
+  MAX_CYCLE,
+  MAX_TOTAL_DAYS,
+  MIN_CYCLE,
+  MIN_TOTAL_DAYS,
   emptyDay,
   emptyState,
   validateState,
@@ -433,7 +437,7 @@ export const addDsa =
     let out = withDay(state, day, (record) => ({ ...record, dsa: [...record.dsa, entry] }))
 
     if (slot) {
-      const cap = capFor(day, slot) ?? 0
+      const cap = capFor(day, slot, out.cycle) ?? 0
       const logged = (out.days[String(day)]?.dsa ?? []).filter((e) => e.slot === slot).length
       const current = out.days[String(day)]?.n[slot] ?? 0
       if (logged > current) out = setCount(day, slot, Math.min(cap, logged), cap)(out)
@@ -515,7 +519,7 @@ export const addApplication =
 
     let out = { ...state, applications: [...state.applications, entry] }
 
-    const cap = capFor(day, 'apps') ?? 0
+    const cap = capFor(day, 'apps', out.cycle) ?? 0
     const logged = out.applications.filter((a) => a.day === day).length
     const current = out.days[String(day)]?.n.apps ?? 0
     if (cap > 0 && logged > current) out = setCount(day, 'apps', Math.min(cap, logged), cap)(out)
@@ -565,3 +569,29 @@ export const setTheme =
 export const setStart =
   (start: string): Recipe =>
   (state) => ({ ...state, start })
+
+export const setPlan =
+  (plan: Partial<Pick<TrackerState, 'start' | 'totalDays' | 'cycle'>>): Recipe =>
+  (state) => {
+    const totalDays =
+      plan.totalDays === undefined
+        ? state.totalDays
+        : Math.min(MAX_TOTAL_DAYS, Math.max(MIN_TOTAL_DAYS, Math.round(plan.totalDays)))
+    const cycle =
+      plan.cycle === undefined
+        ? state.cycle
+        : Math.min(MAX_CYCLE, Math.max(MIN_CYCLE, Math.round(plan.cycle)))
+
+    const start = plan.start ?? state.start
+    const unchanged = start === state.start && totalDays === state.totalDays && cycle === state.cycle
+    if (unchanged) return state
+
+    return {
+      ...state,
+      start,
+      totalDays,
+      cycle,
+      day: 1,
+      days: {},
+    }
+  }
