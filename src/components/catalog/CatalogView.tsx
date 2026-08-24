@@ -9,7 +9,7 @@ import { CatalogRow } from './CatalogRow'
 
 export function CatalogView() {
   const { state } = useTracker()
-  const [active, setActive] = useState<CatalogKey>('hld')
+  const [active, setActive] = useState<CatalogKey>('dsa')
   const [query, setQuery] = useState('')
 
   const catalog = CATALOGS[active]
