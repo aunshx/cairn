@@ -53,13 +53,13 @@ export type ViewKey = 'today' | 'metrics' | 'catalog'
 
 export const TOTAL_DAYS = 42
 
-export const DSA_TARGET = 258
+export const DSA_TARGET = 262
 
-export const MOCK_TARGET = 12
+export const MOCK_TARGET = 20
 
-export const APPS_TARGET = 108
+export const APPS_TARGET = 96
 
-export const MECH_TARGET = 9
+export const MECH_TARGET = 8
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)

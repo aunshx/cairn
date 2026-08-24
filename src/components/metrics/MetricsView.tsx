@@ -98,7 +98,7 @@ export function MetricsView() {
           value={`${mocks}`}
           detail={`of ${MOCK_TARGET}`}
           tone={mocks >= MOCK_TARGET ? 'good' : 'neutral'}
-          reading={`Two mocks on each of the six M days. ${MOCK_TARGET - mocks} left to record.`}
+          reading={`Two mocks on each of the ten M days. ${Math.max(0, MOCK_TARGET - mocks)} left to record.`}
         />
 
         <StatBlock

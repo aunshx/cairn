@@ -153,10 +153,10 @@ One JSON blob per user:
 
 ## Day type
 
-- Every 7th day is a mock day, type `M` (`day % 7 === 0`).
+- Three work days then one mock day: every 4th day is type `M` (`day % 4 === 0`).
 - All other days alternate A, B, skipping M days.
-- `workIndex = day - floor((day-1)/7)`; odd is A, even is B.
-- There are no rest days. 36 A/B days and 6 M days across the 42.
+- `workIndex = day - floor((day-1)/4)`; odd is A, even is B.
+- There are no rest days. 32 A/B days and 10 M days across the 42.
 
 ---
 

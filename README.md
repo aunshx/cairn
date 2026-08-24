@@ -116,8 +116,12 @@ defaults rather than crashing.
 - Five catalogs — HLD, LLD, GFE, Mechanisms, Behavioral — with notes that persist across all 42 days
 - Delta logs, a spaced-repetition redo queue at +3 / +10 / +30 days, and measured mechanism results
 
-Day types: every 7th day is **M**, a mock and revision day. The rest alternate **A** and **B**,
-skipping M days — 18 A days, 18 B days, 6 M days. Every second B day swaps its build slot for a
-mechanism implementation, which is where the target of 9 mechanisms comes from.
+Day types run a three-work-day cycle: every 4th day is **M**, a mock and revision day. The rest
+alternate **A** and **B**, skipping M days — 16 A days, 16 B days, 10 M days. Every second B day
+swaps its build slot for a mechanism implementation, which is where the target of 8 mechanisms
+comes from.
 
-Targets: DSA 258, HLD 31, LLD 19, GFE 18, Mechanisms 9, Behavioral 19, Applications 108, Mocks 12.
+Targets: DSA 262, HLD 31, LLD 19, GFE 18, Mechanisms 8, Behavioral 19, Applications 96, Mocks 20.
+
+GFE is the one target the schedule does not fully afford: the timed `gfe` slot runs on A days only,
+so 16 of the 18 components get a slot. The last two have to be ticked directly in the catalog.
