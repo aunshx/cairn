@@ -10,6 +10,7 @@ export type Task = {
   pick?: CatalogKey[]
   dsa?: boolean
   apps?: boolean
+  gym?: boolean
 }
 
 export type Session = {
@@ -36,13 +37,13 @@ export const DAY_TYPES: DayType[] = ['A', 'B', 'M']
 const BREAK_GYM: Session = {
   title: 'Break + Gym 1',
   range: '11:15 – 12:15',
-  tasks: [{ id: 'gym1', label: 'Weights, 60 min' }],
+  tasks: [{ id: 'gym1', label: 'Strength', gym: true }],
 }
 
 const BREAK_GYM_2: Session = {
   title: 'Break + Gym 2',
   range: '18:00 – 19:00',
-  tasks: [{ id: 'gym2', label: 'Cardio, 45 min' }],
+  tasks: [{ id: 'gym2', label: 'Cardio', gym: true }],
 }
 
 const EVENING_AB: Session = {

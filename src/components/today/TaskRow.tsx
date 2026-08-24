@@ -12,6 +12,7 @@ import { decodePick } from '../../lib/catalogs'
 import { CatalogPicker } from './CatalogPicker'
 import { AppSlots } from './AppSlots'
 import { DsaSlots } from './DsaSlots'
+import { GymSelect } from './GymSelect'
 import type { Task } from '../../lib/schedule'
 import type { DayRecord } from '../../lib/types'
 import { Checkbox } from '../ui/Checkbox'
@@ -104,6 +105,8 @@ export function TaskRow({ task, day, record }: TaskRowProps) {
           )}
 
           {task.apps && task.cap !== undefined && <AppSlots day={day} cap={task.cap} />}
+
+          {task.gym && <GymSelect day={day} taskId={task.id} record={record} />}
         </div>
 
         <div className="flex shrink-0 items-center gap-2 pt-0.5">

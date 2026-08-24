@@ -13,6 +13,7 @@ import {
   type Application,
   type Delta,
   type DsaEntry,
+  type GymActivity,
   type Redo,
   type SaveState,
   type Theme,
@@ -334,6 +335,31 @@ export const setPick =
     }
     return out
   }
+
+export const toggleGymActivity =
+  (day: number, taskId: string, activity: GymActivity): Recipe =>
+  (state) => {
+    const record = state.days[String(day)] ?? emptyDay()
+    const current = record.gym[taskId] ?? []
+    const next = current.includes(activity)
+      ? current.filter((a) => a !== activity)
+      : [...current, activity]
+
+    const out = withDay(state, day, (r) => ({ ...r, gym: { ...r.gym, [taskId]: next } }))
+    const wasDone = record.done[taskId] === true
+
+    if (next.length > 0 && !wasDone) return toggleTask(day, taskId, null)(out)
+    if (next.length === 0 && wasDone) return toggleTask(day, taskId, null)(out)
+    return out
+  }
+
+export const setGymMinutes =
+  (day: number, taskId: string, minutes: number): Recipe =>
+  (state) =>
+    withDay(state, day, (record) => ({
+      ...record,
+      gymMinutes: { ...record.gymMinutes, [taskId]: Math.max(0, Math.min(600, Math.round(minutes))) },
+    }))
 
 export const setTaskNote =
   (day: number, taskId: string, note: string): Recipe =>

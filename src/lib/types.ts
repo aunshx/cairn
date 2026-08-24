@@ -59,6 +59,8 @@ export type DayRecord = {
   dsa: DsaEntry[]
   notes: Record<string, string>
   picks: Record<string, string>
+  gym: Record<string, string[]>
+  gymMinutes: Record<string, number>
   note: string
   finished: boolean
   finishedAt: string | null
@@ -81,6 +83,12 @@ export type TrackerState = {
   applications: Application[]
   theme: Theme
 }
+
+export const GYM_ACTIVITIES = ['CST', 'BB', 'LA', 'Cycling', 'Run', 'Inc Walk'] as const
+
+export type GymActivity = (typeof GYM_ACTIVITIES)[number]
+
+export const GYM_DEFAULT_MINUTES = 45
 
 export const THEMES = ['system', 'light', 'dark'] as const
 
@@ -139,6 +147,19 @@ function strMap(v: unknown): Record<string, string> {
   return out
 }
 
+function gymMap(v: unknown): Record<string, string[]> {
+  const out: Record<string, string[]> = {}
+  if (!isRecord(v)) return out
+  for (const [k, val] of Object.entries(v)) {
+    if (!Array.isArray(val)) continue
+    const picked = val.filter(
+      (a): a is GymActivity => typeof a === 'string' && (GYM_ACTIVITIES as readonly string[]).includes(a),
+    )
+    if (picked.length > 0) out[k] = picked
+  }
+  return out
+}
+
 function indexedStrMap(v: unknown): Record<number, string> {
   const out: Record<number, string> = {}
   if (!isRecord(v)) return out
@@ -168,7 +189,18 @@ export function todayIso(): string {
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 
 export function emptyDay(): DayRecord {
-  return { done: {}, n: {}, dsa: [], notes: {}, picks: {}, note: '', finished: false, finishedAt: null }
+  return {
+    done: {},
+    n: {},
+    dsa: [],
+    notes: {},
+    picks: {},
+    gym: {},
+    gymMinutes: {},
+    note: '',
+    finished: false,
+    finishedAt: null,
+  }
 }
 
 export function emptyState(): TrackerState {
@@ -209,6 +241,8 @@ function validateDay(v: unknown): DayRecord {
       .filter((e) => e.name !== ''),
     notes: strMap(v.notes),
     picks: strMap(v.picks),
+    gym: gymMap(v.gym),
+    gymMinutes: numMap(v.gymMinutes),
     note: str(v.note),
     finished: bool(v.finished),
     finishedAt,
