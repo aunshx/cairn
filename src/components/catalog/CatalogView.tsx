@@ -41,13 +41,13 @@ export function CatalogView() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Filter"
             aria-label={`Filter ${catalog.label}`}
-            className="w-32 border border-rule bg-panel-2 px-2 py-1 font-mono text-[11px] outline-none focus:border-signal sm:w-48"
+            className="field w-32 font-mono text-[11px] sm:w-48"
           />
         }
         bodyClassName=""
       >
         {rows.length === 0 ? (
-          <div className="p-3 sm:p-4">
+          <div className="p-4 sm:p-5">
             <EmptyState
               title="Nothing matches"
               body={`No entry in ${catalog.short} matches "${query.trim()}". Clear the filter to see all ${catalog.items.length}.`}

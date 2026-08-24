@@ -64,7 +64,7 @@ export function Settings({ open, onClose, email, onSignOut }: SettingsProps) {
           </Button>
         </div>
 
-        <div className="border-t border-rule pt-5">
+        <div className="border-t border-rule/70 pt-5">
           <p className="micro">Your data</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Button onClick={exportJson}>Export JSON</Button>
@@ -86,7 +86,7 @@ export function Settings({ open, onClose, email, onSignOut }: SettingsProps) {
           </p>
         </div>
 
-        <div className="border-t border-rule pt-5">
+        <div className="border-t border-rule/70 pt-5">
           <p className="micro text-bad">Reset</p>
           <p className="mt-2 text-[12px] leading-relaxed text-muted">
             Clears all 42 days, catalogs, notes, deltas and redos. Type{' '}
@@ -98,7 +98,7 @@ export function Settings({ open, onClose, email, onSignOut }: SettingsProps) {
               onChange={(e) => setConfirm(e.target.value)}
               aria-label={`Type ${CONFIRM_WORD} to confirm`}
               placeholder={CONFIRM_WORD}
-              className="w-32 border border-rule bg-panel-2 px-2 py-1.5 font-mono text-[12px] outline-none focus:border-bad"
+              className="field w-32 font-mono text-[12px]"
             />
             <Button variant="danger" disabled={confirm.trim().toLowerCase() !== CONFIRM_WORD} onClick={reset}>
               Reset everything
@@ -107,12 +107,12 @@ export function Settings({ open, onClose, email, onSignOut }: SettingsProps) {
         </div>
 
         {message && (
-          <p role="status" className="border border-signal/40 bg-signal/10 px-3 py-2 text-[12px] text-signal">
+          <p role="status" className="rounded-lg border border-signal/40 bg-signal/10 px-3 py-2.5 text-[12px] text-signal">
             {message}
           </p>
         )}
         {error && (
-          <p role="alert" className="border border-bad/50 bg-bad/10 px-3 py-2 text-[12px] text-bad">
+          <p role="alert" className="rounded-lg border border-bad/40 bg-bad/10 px-3 py-2.5 text-[12px] text-bad">
             {error}
           </p>
         )}

@@ -33,13 +33,13 @@ export function DeltaLog({ day }: DeltaLogProps) {
 
   return (
     <Card title="Delta log" meta={state.deltas.length > 0 ? `${state.deltas.length} total` : undefined} bodyClassName="">
-      <div className="space-y-3 border-b border-rule p-3 sm:p-4">
+      <div className="space-y-3 border-b border-rule/70 p-4 sm:p-5">
         <input
           value={draft.prob}
           onChange={(e) => setDraft({ ...draft, prob: e.target.value })}
           placeholder="Problem name"
           aria-label="Problem name"
-          className="w-full border border-rule bg-panel-2 px-3 py-1.5 text-[13px] outline-none focus:border-signal"
+          className="field text-[13px]"
         />
         {FIELDS.map((field) => (
           <label key={field.key} className="block">
@@ -48,7 +48,7 @@ export function DeltaLog({ day }: DeltaLogProps) {
               rows={2}
               value={draft[field.key]}
               onChange={(e) => setDraft({ ...draft, [field.key]: e.target.value })}
-              className="w-full resize-y border border-rule bg-panel-2 px-3 py-2 text-[13px] leading-relaxed outline-none focus:border-signal"
+              className="field resize-y text-[13px] leading-relaxed"
             />
           </label>
         ))}
@@ -58,7 +58,7 @@ export function DeltaLog({ day }: DeltaLogProps) {
       </div>
 
       {recent.length === 0 ? (
-        <div className="p-3 sm:p-4">
+        <div className="p-4 sm:p-5">
           <EmptyState
             title="No deltas yet"
             body="After each design problem, write the gap between your answer and the key. This is the panel you reread on mock days."
@@ -67,7 +67,7 @@ export function DeltaLog({ day }: DeltaLogProps) {
       ) : (
         <ul>
           {recent.map((delta, index) => (
-            <li key={`${delta.day}-${index}`} className="border-b border-rule/60 px-3 py-3 last:border-b-0 sm:px-4">
+            <li key={`${delta.day}-${index}`} className="border-b border-rule/50 px-4 py-3.5 transition-colors last:border-b-0 hover:bg-panel-2/40 sm:px-5">
               <div className="flex items-baseline gap-2">
                 <span className="font-mono text-[10px] tabular-nums text-dim">d{delta.day}</span>
                 <span className="min-w-0 flex-1 truncate text-[13px] text-ink">{delta.prob || 'Untitled'}</span>

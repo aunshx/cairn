@@ -24,14 +24,16 @@ export function TrackCoverage({ state }: TrackCoverageProps) {
                 </span>
               </div>
 
-              <div className="relative mt-1.5 h-2 border border-rule bg-panel-2">
+              <div className="relative mt-2 h-2.5 overflow-hidden rounded-full border border-rule/70 bg-panel-2">
                 <div
-                  className={`absolute inset-y-0 left-0 ${ahead ? 'bg-signal' : 'bg-flag'}`}
+                  className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ${
+                    ahead ? 'bg-gradient-to-r from-signal to-accent' : 'bg-gradient-to-r from-flag to-flag/60'
+                  }`}
                   style={{ width: `${Math.min(100, track.ratio * 100)}%` }}
                 />
                 <div
                   aria-hidden="true"
-                  className="absolute -top-0.5 -bottom-0.5 w-px bg-ink/70"
+                  className="absolute -top-1 -bottom-1 z-10 w-0.5 rounded-full bg-ink/80"
                   style={{ left: `${Math.min(100, track.expectedRatio * 100)}%` }}
                 />
               </div>

@@ -21,8 +21,8 @@ export function CatalogRow({ catalog, index, item }: CatalogRowProps) {
   const result = catalog === 'mech' ? (state.mechResults[index] ?? '').trim() : ''
 
   return (
-    <li className={`border-b border-rule/60 last:border-b-0 ${done ? 'bg-signal/[0.03]' : ''}`}>
-      <div className="flex items-start gap-3 px-3 py-2.5 sm:px-4">
+    <li className={`group border-b border-rule/50 transition-colors last:border-b-0 hover:bg-panel-2/40 ${done ? 'bg-signal/[0.04]' : ''}`}>
+      <div className="flex items-start gap-3.5 px-4 py-3 sm:px-5">
         <span className="w-5 shrink-0 pt-0.5 font-mono text-[10px] tabular-nums text-dim">
           {String(index + 1).padStart(2, '0')}
         </span>
@@ -48,7 +48,10 @@ export function CatalogRow({ catalog, index, item }: CatalogRowProps) {
         </div>
 
         {result && (
-          <span className="hidden max-w-40 shrink-0 truncate pt-0.5 font-mono text-[11px] text-signal sm:block" title={result}>
+          <span
+            className="hidden max-w-40 shrink-0 truncate rounded-md bg-signal/10 px-2 py-0.5 font-mono text-[11px] text-signal sm:block"
+            title={result}
+          >
             {result}
           </span>
         )}
@@ -64,8 +67,10 @@ export function CatalogRow({ catalog, index, item }: CatalogRowProps) {
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-label={`${open ? 'Hide' : 'Add'} note for ${item.name}`}
-          className={`flex size-6 shrink-0 items-center justify-center border transition-colors ${
-            note ? 'border-flag/50 text-flag' : 'border-transparent text-dim hover:border-rule hover:text-ink'
+          className={`flex size-7 shrink-0 items-center justify-center rounded-md border transition-all ${
+            note
+              ? 'border-flag/40 bg-flag/10 text-flag'
+              : 'border-transparent text-dim opacity-60 hover:bg-panel-2 hover:text-ink group-hover:opacity-100'
           }`}
         >
           <svg viewBox="0 0 16 16" aria-hidden="true" className="size-3.5">
@@ -81,7 +86,7 @@ export function CatalogRow({ catalog, index, item }: CatalogRowProps) {
       </div>
 
       {open && (
-        <div className="border-t border-rule/60 bg-panel-2/40 px-3 py-3 sm:px-4">
+        <div className="border-t border-rule/50 bg-ground/40 px-4 py-4 sm:px-5">
           {result && (
             <p className="mb-3 font-mono text-[11px] text-signal sm:hidden">{result}</p>
           )}

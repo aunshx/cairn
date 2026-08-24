@@ -13,9 +13,9 @@ type RedoQueueProps = {
 type Entry = { redo: Redo; index: number; due: number }
 
 function dueLabel(due: number, day: number): { text: string; className: string } {
-  if (due < day) return { text: 'OVERDUE', className: 'text-bad' }
-  if (due === day) return { text: 'DUE', className: 'text-flag' }
-  return { text: `d${due}`, className: 'text-dim' }
+  if (due < day) return { text: 'Overdue', className: 'border-bad/40 bg-bad/10 text-bad' }
+  if (due === day) return { text: 'Due', className: 'border-flag/40 bg-flag/10 text-flag' }
+  return { text: `d${due}`, className: 'border-rule bg-panel-2/60 text-dim' }
 }
 
 export function RedoQueue({ day }: RedoQueueProps) {
@@ -41,7 +41,7 @@ export function RedoQueue({ day }: RedoQueueProps) {
       meta={entries.length > 0 ? `${entries.length} open${overdue ? ` · ${overdue} overdue` : ''}` : undefined}
       bodyClassName=""
     >
-      <div className="flex gap-2 border-b border-rule p-3 sm:p-4">
+      <div className="flex gap-2 border-b border-rule/70 p-4 sm:p-5">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -53,7 +53,7 @@ export function RedoQueue({ day }: RedoQueueProps) {
           }}
           placeholder="Add a problem to redo"
           aria-label="Add a problem to redo"
-          className="min-w-0 flex-1 border border-rule bg-panel-2 px-3 py-1.5 text-[13px] outline-none focus:border-signal"
+          className="field min-w-0 flex-1 text-[13px]"
         />
         <Button onClick={add} disabled={!name.trim()}>
           Add
@@ -61,7 +61,7 @@ export function RedoQueue({ day }: RedoQueueProps) {
       </div>
 
       {entries.length === 0 ? (
-        <div className="p-3 sm:p-4">
+        <div className="p-4 sm:p-5">
           <EmptyState
             title="Queue is empty"
             body="Flag a problem in the DSA log and it lands here at +3, +10 and +30 days. Clearing one advances it to the next interval."
@@ -74,9 +74,11 @@ export function RedoQueue({ day }: RedoQueueProps) {
             return (
               <li
                 key={`${redo.name}-${index}`}
-                className="flex items-center gap-3 border-b border-rule/60 px-3 py-2 last:border-b-0 sm:px-4"
+                className="flex items-center gap-3 border-b border-rule/50 px-4 py-2.5 transition-colors last:border-b-0 hover:bg-panel-2/40 sm:px-5"
               >
-                <span className={`w-16 shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] ${label.className}`}>
+                <span
+                  className={`w-[4.5rem] shrink-0 rounded-full border px-2 py-0.5 text-center font-mono text-[9px] uppercase tracking-[0.1em] ${label.className}`}
+                >
                   {label.text}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-[13px] text-ink">{redo.name}</span>
@@ -90,7 +92,7 @@ export function RedoQueue({ day }: RedoQueueProps) {
                   type="button"
                   onClick={() => update(removeRedo(index))}
                   aria-label={`Delete ${redo.name}`}
-                  className="font-mono text-[13px] leading-none text-dim hover:text-bad"
+                  className="rounded-md px-1.5 py-0.5 font-mono text-[15px] leading-none text-dim transition-colors hover:bg-bad/10 hover:text-bad"
                 >
                   ×
                 </button>

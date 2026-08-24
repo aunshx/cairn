@@ -15,51 +15,63 @@ export function Heatmap({ state, onJump }: HeatmapProps) {
   return (
     <Card
       title="Completion heatmap"
-      meta="6 weeks · 7 days"
+      meta="6 weeks"
       actions={
-        <div className="flex items-center gap-3 font-mono text-[10px] text-dim">
+        <div className="flex items-center gap-3 font-mono text-[9px] uppercase tracking-[0.1em] text-dim">
           <span className="flex items-center gap-1.5">
-            <span className="size-2.5 border border-dim" />M day
+            <span className="size-2 rounded-[2px] border border-dashed border-dim" />M
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="size-2.5 bg-signal" />
+            <span className="size-2 rounded-[2px] bg-signal/30" />
+            part
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="size-2 rounded-[2px] bg-gradient-to-br from-signal to-accent" />
             full
           </span>
         </div>
       }
     >
-      <div className="grid grid-cols-7 gap-1.5" role="group" aria-label="Completion by day">
-        {cells.map((cell) => {
-          const mock = cell.type === 'M'
-          const style = mock
-            ? { borderColor: cell.rate > 0 ? 'var(--color-signal)' : 'var(--color-rule)', opacity: cell.rate > 0 ? 0.4 + cell.rate * 0.6 : 1 }
-            : { backgroundColor: 'var(--color-signal)', opacity: cell.rate === 0 ? 0 : 0.15 + cell.rate * 0.85 }
+      <div className="flex flex-wrap items-start gap-x-8 gap-y-4">
+        <div
+          className="grid w-max shrink-0 grid-cols-7 gap-1"
+          role="group"
+          aria-label="Completion by day"
+        >
+          {cells.map((cell) => {
+            const mock = cell.type === 'M'
+            const full = cell.rate >= 1
+            return (
+              <button
+                key={cell.day}
+                type="button"
+                onClick={() => onJump(cell.day)}
+                title={`Day ${cell.day} · ${mock ? 'M' : cell.type} · ${cell.done}/${cell.total} · ${formatShortDate(state.start, cell.day)}`}
+                aria-label={`Day ${cell.day}, ${mock ? 'mock day' : `type ${cell.type}`}, ${cell.done} of ${cell.total} checked`}
+                aria-current={cell.day === state.day ? 'true' : undefined}
+                className={`relative size-6 rounded-[3px] transition-all duration-150 hover:scale-110 ${
+                  mock ? 'border border-dashed border-dim/70' : cell.rate === 0 ? 'border border-rule/50' : ''
+                } ${cell.day === state.day ? 'ring-1 ring-signal ring-offset-1 ring-offset-panel' : ''}`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`absolute inset-0 rounded-[2px] ${
+                    full ? 'bg-gradient-to-br from-signal to-accent' : 'bg-signal'
+                  }`}
+                  style={full ? undefined : { opacity: cell.rate === 0 ? 0 : 0.12 + cell.rate * 0.7 }}
+                />
+                <span className="relative font-mono text-[8px] leading-none text-ink/50">{cell.day}</span>
+              </button>
+            )
+          })}
+        </div>
 
-          return (
-            <button
-              key={cell.day}
-              type="button"
-              onClick={() => onJump(cell.day)}
-              title={`Day ${cell.day} · ${mock ? 'M' : cell.type} · ${cell.done}/${cell.total} · ${formatShortDate(state.start, cell.day)}`}
-              aria-label={`Day ${cell.day}, ${mock ? 'mock day' : `type ${cell.type}`}, ${cell.done} of ${cell.total} checked`}
-              aria-current={cell.day === state.day ? 'true' : undefined}
-              className={`relative aspect-square border ${
-                mock ? 'border-dim bg-transparent' : cell.rate === 0 ? 'border-rule/50' : 'border-transparent'
-              } ${cell.day === state.day ? 'outline outline-1 outline-offset-1 outline-signal' : ''}`}
-            >
-              <span aria-hidden="true" className="absolute inset-0" style={style} />
-              <span className="relative font-mono text-[9px] leading-none text-dim">{cell.day}</span>
-            </button>
-          )
-        })}
-      </div>
-
-      {!anyStarted && (
-        <p className="mt-4 max-w-prose text-[12px] leading-relaxed text-muted">
-          Each cell fills in proportion to how much of that day you checked off. M days stay outlined so
-          mock days read differently from ordinary ones. Nothing here until the first day is worked.
+        <p className="max-w-xs text-[12px] leading-relaxed text-muted">
+          {anyStarted
+            ? 'Each cell darkens with the share of that day you checked off. M days stay outlined so mock days read differently. Click any cell to jump to it.'
+            : 'Each cell will fill in proportion to how much of that day you check off. M days stay outlined so mock days read differently from ordinary ones. Nothing here until the first day is worked.'}
         </p>
-      )}
+      </div>
     </Card>
   )
 }

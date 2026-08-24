@@ -7,8 +7,7 @@ type AuthGateProps = {
   heldWork?: boolean
 }
 
-const FIELD =
-  'w-full border border-rule bg-panel-2 px-3 py-2 text-[14px] text-ink outline-none focus:border-signal'
+const FIELD = 'field text-[14px]'
 
 export function AuthGate({ auth, heldWork = false }: AuthGateProps) {
   const [mode, setMode] = useState<'in' | 'up'>('in')
@@ -49,18 +48,18 @@ export function AuthGate({ auth, heldWork = false }: AuthGateProps) {
     <main className="flex min-h-dvh items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-6">
-          <h1 className="font-mono text-[13px] uppercase tracking-[0.3em] text-signal">cairn</h1>
+          <h1 className="accent-text font-mono text-[15px] font-semibold uppercase tracking-[0.3em]">cairn</h1>
           <p className="mt-1 font-mono text-[11px] text-dim">42-day interview prep · logbook</p>
         </div>
 
-        <form onSubmit={submit} className="border border-rule bg-panel">
-          <div className="border-b border-rule px-4 py-3">
+        <form onSubmit={submit} className="surface overflow-hidden">
+          <div className="border-b border-rule/70 px-5 py-4">
             <h2 className="micro">{creating ? 'Create account' : 'Sign in'}</h2>
           </div>
 
-          <div className="space-y-4 p-4">
+          <div className="space-y-4 p-5">
             {heldWork && (
-              <p className="border border-flag/50 bg-flag/10 px-3 py-2 text-[12px] leading-relaxed text-flag">
+              <p className="rounded-lg border border-flag/40 bg-flag/10 px-3 py-2.5 text-[12px] leading-relaxed text-flag">
                 Your session expired. Unsaved changes are still held in this tab and will be written
                 as soon as you sign back in.
               </p>
@@ -95,23 +94,23 @@ export function AuthGate({ auth, heldWork = false }: AuthGateProps) {
             </div>
 
             {error && (
-              <p role="alert" className="border border-bad/50 bg-bad/10 px-3 py-2 text-[12px] leading-relaxed text-bad">
+              <p role="alert" className="rounded-lg border border-bad/40 bg-bad/10 px-3 py-2.5 text-[12px] leading-relaxed text-bad">
                 {error}
               </p>
             )}
 
             {notice && (
-              <p role="status" className="border border-signal/40 bg-signal/10 px-3 py-2 text-[12px] leading-relaxed text-signal">
+              <p role="status" className="rounded-lg border border-signal/40 bg-signal/10 px-3 py-2.5 text-[12px] leading-relaxed text-signal">
                 {notice}
               </p>
             )}
 
-            <Button type="submit" variant="accent" disabled={busy} className="w-full py-2">
+            <Button type="submit" variant="accent" disabled={busy} className="w-full py-2.5">
               {busy ? 'Working…' : creating ? 'Create account' : 'Sign in'}
             </Button>
           </div>
 
-          <div className="border-t border-rule px-4 py-3">
+          <div className="border-t border-rule/70 px-5 py-4">
             <button
               type="button"
               onClick={() => {
