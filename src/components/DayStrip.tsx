@@ -9,21 +9,21 @@ type DayStripProps = {
 
 type Tone = { shell: string; fill: string; text: string }
 
-const NEUTRAL: Tone = { shell: 'border-rule/50', fill: '', text: 'text-dim' }
+const NEUTRAL: Tone = { shell: 'bg-rule/20', fill: '', text: 'text-dim/70' }
 
 const COMPLETE: Tone = {
-  shell: 'border-signal/50',
+  shell: 'bg-rule/20',
   fill: 'bg-gradient-to-t from-signal to-accent',
   text: 'text-ground',
 }
 
 const SCALE: { upTo: number; tone: Tone }[] = [
-  { upTo: 0, tone: { shell: 'border-bad/55 bg-bad/12', fill: '', text: 'text-bad' } },
-  { upTo: 24, tone: { shell: 'border-bad/50', fill: 'bg-bad/75', text: 'text-bad' } },
-  { upTo: 49, tone: { shell: 'border-bad/40', fill: 'bg-bad/55', text: 'text-bad' } },
-  { upTo: 69, tone: { shell: 'border-flag/45', fill: 'bg-flag/70', text: 'text-flag' } },
-  { upTo: 89, tone: { shell: 'border-flag/35', fill: 'bg-flag/50', text: 'text-flag' } },
-  { upTo: 99, tone: { shell: 'border-signal/40', fill: 'bg-signal/65', text: 'text-signal' } },
+  { upTo: 0, tone: { shell: 'bg-bad/10', fill: '', text: 'text-bad/70' } },
+  { upTo: 24, tone: { shell: 'bg-rule/20', fill: 'bg-bad/55', text: 'text-bad' } },
+  { upTo: 49, tone: { shell: 'bg-rule/20', fill: 'bg-bad/40', text: 'text-bad/90' } },
+  { upTo: 69, tone: { shell: 'bg-rule/20', fill: 'bg-flag/50', text: 'text-flag' } },
+  { upTo: 89, tone: { shell: 'bg-rule/20', fill: 'bg-flag/40', text: 'text-flag/90' } },
+  { upTo: 99, tone: { shell: 'bg-rule/20', fill: 'bg-signal/50', text: 'text-signal' } },
 ]
 
 function toneFor(pct: number, finished: boolean, isActive: boolean): Tone {
@@ -63,10 +63,10 @@ export function DayStrip({ state, onJump }: DayStripProps) {
             title={`Day ${day} · ${mock ? 'Mock' : type} · ${done}/${total} (${pct}%)${
               record.finished ? ' · closed' : ''
             } · ${formatShortDate(state.start, day)}`}
-            className={`group relative h-10 w-[26px] shrink-0 overflow-hidden rounded-[3px] border transition-all duration-200 hover:brightness-125 sm:w-auto sm:min-w-[20px] sm:flex-1 ${
+            className={`group relative h-10 w-[26px] shrink-0 overflow-hidden rounded-[3px] transition-all duration-200 hover:brightness-150 sm:w-auto sm:min-w-[20px] sm:flex-1 ${
               tone.shell
-            } ${mock ? 'border-dashed' : ''} ${
-              current ? 'ring-2 ring-signal/80 ring-offset-1 ring-offset-ground' : ''
+            } ${mock ? 'outline-1 outline-dashed outline-dim/35 -outline-offset-1' : ''} ${
+              current ? 'ring-1 ring-signal ring-offset-1 ring-offset-ground' : ''
             }`}
           >
             {tone.fill && (
@@ -83,7 +83,7 @@ export function DayStrip({ state, onJump }: DayStripProps) {
 
             <span
               className={`absolute inset-x-0 top-1 text-center font-mono text-[7px] leading-none tabular-nums ${
-                current ? 'text-signal' : 'text-dim/80'
+                current ? 'text-signal' : 'text-dim/60'
               }`}
             >
               {day}
