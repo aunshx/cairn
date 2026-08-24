@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { goToDay, useTracker } from '../hooks/useTracker'
-import type { ViewKey } from '../lib/types'
+import { TOTAL_DAYS, type ViewKey } from '../lib/types'
 import { CatalogView } from './catalog/CatalogView'
 import { Header } from './Header'
 import { MetricsView } from './metrics/MetricsView'
@@ -18,9 +18,21 @@ export function AppShell({ email, onSignOut }: AppShellProps) {
   const [settingsOpen, setSettingsOpen] = useState(false)
 
   function jump(day: number) {
-    update(goToDay(day))
+    update(goToDay(Math.min(TOTAL_DAYS, Math.max(1, day))))
     setView('today')
   }
+
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.metaKey || event.ctrlKey || event.altKey) return
+      const target = event.target
+      if (target instanceof Element && target.closest('input, textarea, select, [contenteditable]')) return
+      if (event.key === 'ArrowLeft') jump(state.day - 1)
+      if (event.key === 'ArrowRight') jump(state.day + 1)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  })
 
   return (
     <div className="min-h-dvh">

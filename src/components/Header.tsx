@@ -29,6 +29,24 @@ type HeaderProps = {
   onSignOut: () => void
 }
 
+function Chevron({ dir }: { dir: 'prev' | 'next' }) {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true" className="size-4">
+      <path
+        d={dir === 'prev' ? 'M10 3 5 8l5 5' : 'M6 3l5 5-5 5'}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+const STEP =
+  'flex size-8 items-center justify-center rounded-full border border-rule bg-panel-2 text-muted transition-colors hover:border-signal/50 hover:text-signal disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-rule disabled:hover:text-muted'
+
 function ProgressRing({ value, label }: { value: number; label: string }) {
   const r = 18
   const c = 2 * Math.PI * r
@@ -77,7 +95,30 @@ export function Header({
     <header className="sticky top-0 z-20 border-b border-rule/60 bg-ground/70 backdrop-blur-xl">
       <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
         <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                className={STEP}
+                disabled={state.day <= 1}
+                onClick={() => onJump(state.day - 1)}
+                aria-label="Previous day"
+                title="Previous day (←)"
+              >
+                <Chevron dir="prev" />
+              </button>
+              <button
+                type="button"
+                className={STEP}
+                disabled={state.day >= TOTAL_DAYS}
+                onClick={() => onJump(state.day + 1)}
+                aria-label="Next day"
+                title="Next day (→)"
+              >
+                <Chevron dir="next" />
+              </button>
+            </div>
+
             <p className="accent-text font-mono text-[38px] leading-none font-semibold tracking-tight sm:text-[46px]">
               {String(state.day).padStart(2, '0')}
               <span className="text-dim opacity-60">/{TOTAL_DAYS}</span>
