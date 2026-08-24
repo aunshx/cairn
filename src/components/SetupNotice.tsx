@@ -21,7 +21,7 @@ const STEPS = [
   },
   {
     title: '2 · Find the keys',
-    body: 'Press Connect in the project header, or open Project Settings → API Keys. Copy the Project URL, then the client key — newer projects show it as a publishable key beginning sb_publishable_, older ones as the anon / public key. It is meant to ship in the browser and is safe with row-level security on. Never copy the secret or service_role key into this project.',
+    body: 'Press Connect in the project header, or open Project Settings → API Keys. Copy the Project URL, then the client key. Newer projects show it as a publishable key beginning sb_publishable_, older ones as the anon / public key. It is meant to ship in the browser and is safe with row-level security on. Never copy the secret or service_role key into this project.',
   },
   {
     title: '3 · Point the app at it',
@@ -31,7 +31,7 @@ VITE_SUPABASE_ANON_KEY=<anon key>`,
   },
   {
     title: '4 · Keep it to yourself',
-    body: 'This app is built for one person. Set VITE_SIGNUP_CODE and the Create account form asks for a code — but Vite inlines env vars into the bundle, so treat that as a speed bump, not a lock. The real control is turning off Allow new users to sign up under Authentication → Sign In / Providers once your own account exists. The README has a Postgres trigger if you want enforced one-time codes instead.',
+    body: 'This app is built for one person. Set VITE_SIGNUP_CODE and the Create account form asks for a code, but Vite inlines env vars into the bundle, so treat that as a speed bump, not a lock. The real control is turning off Allow new users to sign up under Authentication → Sign In / Providers once your own account exists. The README has a Postgres trigger if you want enforced one-time codes instead.',
   },
   {
     title: '5 · Deploy',

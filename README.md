@@ -57,11 +57,11 @@ Press **Connect** in the project header, or open Project Settings → API Keys. 
 into `VITE_SUPABASE_URL`, and the client key into `VITE_SUPABASE_ANON_KEY`.
 
 Supabase now issues that client key as a **publishable key** beginning `sb_publishable_`. Older
-projects show it as the **anon / public** key, a JWT beginning `eyJ`. Either works here — the
+projects show it as the **anon / public** key, a JWT beginning `eyJ`. Either works here, the
 variable keeps the `ANON_KEY` name for continuity.
 
 This key is designed to ship in the browser and is safe to commit once row-level security is
-enabled — it grants nothing on its own, because every policy above requires an authenticated JWT.
+enabled, it grants nothing on its own, because every policy above requires an authenticated JWT.
 This is not a leaked credential. The **secret** key (previously **service_role**) is a different
 thing entirely and must never appear in this repository, in `.env`, or in a Netlify variable for
 this site.
@@ -125,7 +125,7 @@ create trigger enforce_signup_code
 Each code works exactly once. A sign-up without a valid one fails at the database, and the app
 surfaces it as "That access code is not valid."
 
-Row-level security already means a second account could never see your data — it would get its own
+Row-level security already means a second account could never see your data, it would get its own
 empty row. These controls are about who can create an account at all.
 
 ### Email confirmation
@@ -143,7 +143,7 @@ error with a retry button; open the Supabase dashboard, resume the project, then
 
 Light and dark, with a third setting that follows the operating system. The control is in the
 header, and the choice is stored in Postgres with everything else rather than in browser storage, so
-it follows you between machines. Before your data loads — on the sign-in screen — the system
+it follows you between machines. Before your data loads, on the sign-in screen, the system
 preference applies.
 
 ## Save states
@@ -155,13 +155,13 @@ The indicator in the header is also the button that opens settings.
 | **Unsaved** (amber) | Edited, not yet written. A write is queued 700ms after the last keystroke. |
 | **Saving…** (grey) | A write is in flight. |
 | **Saved** (green) | Postgres matches what is on screen. |
-| **Save failed — retrying** (red) | The write failed. It retries every 5s, and immediately when the browser comes back online. |
+| **Save failed, retrying** (red) | The write failed. It retries every 5s, and immediately when the browser comes back online. |
 
 While anything is unsaved there is also a background flush every 20s and a warning if you try to
 close the tab. State is snapshotted before each write and compared after, so an edit made mid-flight
 is never dropped.
 
-If the initial load fails the app shows the error and a retry button rather than opening empty — an
+If the initial load fails the app shows the error and a retry button rather than opening empty, an
 empty screen would save over good data on the first keystroke.
 
 All application data lives in Postgres. The only thing in browser storage is the Supabase auth
@@ -183,16 +183,16 @@ One JSON blob per user, validated field by field on read, so a partial or stale 
 defaults rather than crashing.
 
 - 42 days, each with checked tasks, counter values, a DSA log, per-task notes and a day note
-- Six catalogs — the NeetCode 250, HLD, LLD, GFE, Mechanisms, Behavioral — with notes that persist
+- Six catalogs, the NeetCode 250, HLD, LLD, GFE, Mechanisms, Behavioral, with notes that persist
   across all 42 days. Every problem links to NeetCode, and to LeetCode as a fallback.
 - Catalog-backed tasks are picked, not prescribed: choose what you actually did from the list, or
   type something that is not on it
 - Delta logs, a spaced-repetition redo queue at +3 / +10 / +30 days, and measured mechanism results
-- Applications as records — company, position, job URL and a status you move along as you hear back
-  (applied → screen → onsite → offer, or rejected / ghosted) — with their own Jobs tab in the catalog
+- Applications as records, company, position, job URL and a status you move along as you hear back
+  (applied → screen → onsite → offer, or rejected / ghosted), with their own Jobs tab in the catalog
 
 Day types run a three-work-day cycle: every 4th day is **M**, a mock and revision day. The rest
-alternate **A** and **B**, skipping M days — 16 A days, 16 B days, 10 M days. Every second B day
+alternate **A** and **B**, skipping M days, 16 A days, 16 B days, 10 M days. Every second B day
 swaps its build slot for a mechanism implementation, which is where the target of 8 mechanisms
 comes from.
 

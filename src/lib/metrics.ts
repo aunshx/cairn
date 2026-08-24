@@ -591,6 +591,6 @@ export function mechanismResults(state: TrackerState): MechResult[] {
 }
 
 export function percent(value: number | null, digits = 0): string {
-  if (value === null || Number.isNaN(value)) return '—'
+  if (value === null || Number.isNaN(value)) return '--'
   return `${(value * 100).toFixed(digits)}%`
 }

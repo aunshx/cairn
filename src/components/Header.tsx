@@ -152,7 +152,7 @@ export function Header({
               <button
                 type="button"
                 onClick={onOpenSettings}
-                title={`Signed in as ${email} — open settings`}
+                title={`Signed in as ${email}. Open settings`}
                 aria-label={`Signed in as ${email}. Open settings`}
                 className="flex items-center gap-2 rounded-full border border-rule bg-panel-2 py-1 pr-1 pl-1 transition-colors hover:border-signal/50 sm:pr-3"
               >

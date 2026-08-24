@@ -47,7 +47,7 @@ export function RevisionHealth({ state }: RevisionHealthProps) {
           <div>
             <dt className="micro">Flag to first clear</dt>
             <dd className="mt-1.5 font-mono text-[24px] leading-none tabular-nums text-ink">
-              {health.averageGap === null ? '—' : `${health.averageGap.toFixed(1)}d`}
+              {health.averageGap === null ? '--' : `${health.averageGap.toFixed(1)}d`}
             </dd>
             <p className="mt-1 font-mono text-[10px] text-dim">scheduled at +3d</p>
             <p className="mt-2 text-[12px] leading-snug text-muted">

@@ -30,7 +30,7 @@ export function GymBreakdown({ state }: GymBreakdownProps) {
       {stats.sessions === 0 ? (
         <EmptyState
           title="Nothing logged yet"
-          body="Pick what you actually did on the Gym 1 and Gym 2 rows — CST, BB, LA, Cycling, Run or Inc Walk. Selecting one ticks the session off, and the split shows up here."
+          body="Pick what you actually did on the Gym 1 and Gym 2 rows: CST, BB, LA, Cycling, Run or Inc Walk. Selecting one ticks the session off, and the split shows up here."
         />
       ) : (
         <>

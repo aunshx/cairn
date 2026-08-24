@@ -41,7 +41,11 @@ export function TrackCoverage({ state }: TrackCoverageProps) {
               <p className="mt-1 font-mono text-[10px] text-dim">
                 {percent(track.ratio)} done · pace marker at {percent(track.expectedRatio)}
                 {track.projectedDay !== null && track.done < track.total
-                  ? ` · lands day ${track.projectedDay > 42 ? `${track.projectedDay} (past 42)` : track.projectedDay}`
+                  ? ` · lands day ${
+                      track.projectedDay > state.totalDays
+                        ? `${track.projectedDay} (past ${state.totalDays})`
+                        : track.projectedDay
+                    }`
                   : track.done >= track.total
                     ? ' · complete'
                     : ' · no rate yet'}
@@ -52,7 +56,8 @@ export function TrackCoverage({ state }: TrackCoverageProps) {
       </ul>
 
       <p className="mt-4 max-w-prose text-[12px] leading-relaxed text-muted">
-        The hairline on each bar is where you need to be today to finish by day 42. Amber means the bar
+        The hairline on each bar is where you need to be today to finish by day {state.totalDays}. Amber
+        means the bar
         has not reached it.
       </p>
     </Card>

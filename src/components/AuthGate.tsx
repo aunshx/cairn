@@ -56,7 +56,7 @@ export function AuthGate({ auth, heldWork = false }: AuthGateProps) {
       <div className="w-full max-w-sm">
         <div className="mb-6">
           <h1 className="accent-text font-mono text-[15px] font-semibold uppercase tracking-[0.3em]">cairn</h1>
-          <p className="mt-1 font-mono text-[11px] text-dim">42-day interview prep · logbook</p>
+          <p className="mt-1 font-mono text-[11px] text-dim">interview prep · logbook</p>
         </div>
 
         <form onSubmit={submit} className="surface overflow-hidden">

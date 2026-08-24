@@ -18,6 +18,8 @@ type BurnUpChartProps = {
 export function BurnUpChart({ state }: BurnUpChartProps) {
   const { points, target: dsaTarget } = burnUp(state, state.day)
   const totalDays = state.totalDays
+  const tickStep = Math.max(1, Math.round(totalDays / 6))
+  const axisDays = Array.from({ length: 6 }, (_, i) => Math.min(totalDays, (i + 1) * tickStep))
   const solved = points.at(-1)?.actual ?? 0
 
   const x = (day: number) => PAD.left + (day / totalDays) * PLOT_W
@@ -77,7 +79,7 @@ export function BurnUpChart({ state }: BurnUpChartProps) {
             </g>
           ))}
 
-          {[7, 14, 21, 28, 35, 42].map((d) => (
+          {axisDays.map((d) => (
             <text
               key={d}
               x={x(d)}

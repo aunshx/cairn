@@ -17,9 +17,9 @@ export function TodayView() {
   const { state, update } = useTracker()
   const day = state.day
   const record = dayRecord(state, day)
-  const sessions = sessionsFor(day)
+  const sessions = sessionsFor(day, state.cycle)
   const completion = dayCompletion(state, day)
-  const isMockDay = dayType(day) === 'M'
+  const isMockDay = dayType(day, state.cycle) === 'M'
 
   const [fire, setFire] = useState(0)
   const [confirmFor, setConfirmFor] = useState<number | null>(null)

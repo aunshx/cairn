@@ -57,7 +57,7 @@ export function DsaLog({ day, record }: DsaLogProps) {
       {rows.length === 0 ? (
         <p className="p-4 text-[12px] leading-relaxed text-muted sm:p-5">
           Problems you do inside the 4 DSA and 3 DSA blocks are logged on those rows above. This is
-          for anything extra — a redo from the queue, or a problem outside the plan.
+          for anything extra: a redo from the queue, or a problem outside the plan.
         </p>
       ) : (
         <ul>
@@ -87,7 +87,7 @@ export function DsaLog({ day, record }: DsaLogProps) {
                   aria-pressed={entry.flag}
                   title={
                     entry.flag
-                      ? 'Flagged — scheduled for a redo. Click to unschedule.'
+                      ? 'Flagged, scheduled for a redo. Click to unschedule.'
                       : "Didn't get it cleanly? Flag it to schedule a redo at +3, +10 and +30 days."
                   }
                   aria-label={`${entry.flag ? 'Unflag' : 'Flag'} ${entry.name} for a redo`}

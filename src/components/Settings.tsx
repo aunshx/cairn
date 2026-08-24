@@ -68,7 +68,7 @@ export function Settings({ open, onClose, email, onSignOut }: SettingsProps) {
     setConfirmPlan(false)
     setError(null)
     setMessage(
-      `Programme saved — ${draftDays} days, ${draft.cycle - 1} work days per mock day. The timeline was cleared.`,
+      `Programme saved. ${draftDays} days, ${draft.cycle - 1} work days per mock day. The timeline was cleared.`,
     )
   }
 
@@ -117,7 +117,7 @@ export function Settings({ open, onClose, email, onSignOut }: SettingsProps) {
           <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-dim">
             Save status · {saveState}
           </p>
-          <Button variant="ghost" className="mt-3" onClick={onSignOut}>
+          <Button className="mt-3" onClick={onSignOut}>
             Sign out
           </Button>
         </div>
@@ -125,7 +125,7 @@ export function Settings({ open, onClose, email, onSignOut }: SettingsProps) {
         <div className="border-t border-rule/70 pt-5">
           <p className="micro">Programme</p>
           <p className="mt-2 text-[12px] leading-relaxed text-muted">
-            Every target below is recalculated from this shape — nothing is hard-coded.
+            Every target below is recalculated from this shape. Nothing is hard-coded.
           </p>
 
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -178,7 +178,7 @@ export function Settings({ open, onClose, email, onSignOut }: SettingsProps) {
                   daysValid ? 'text-ink' : 'text-bad'
                 }`}
               >
-                {Number.isFinite(draftDays) ? draftDays : '—'}
+                {Number.isFinite(draftDays) ? draftDays : '--'}
                 <span className="ml-2 text-dim">from the dates</span>
               </p>
             </div>
@@ -217,12 +217,7 @@ export function Settings({ open, onClose, email, onSignOut }: SettingsProps) {
             </Button>
 
             {confirmPlan && (
-              <Button
-                variant="ghost"
-                onClick={() => setConfirmPlan(false)}
-              >
-                Cancel
-              </Button>
+              <Button onClick={() => setConfirmPlan(false)}>Cancel</Button>
             )}
 
             {planDirty && !confirmPlan && (
@@ -235,9 +230,9 @@ export function Settings({ open, onClose, email, onSignOut }: SettingsProps) {
           {confirmPlan && (
             <p className="mt-2 max-w-prose text-[12px] leading-relaxed text-flag">
               This rewrites the shape of the whole programme. Day types are recalculated and{' '}
-              <span className="text-bad">the timeline is cleared</span> — every tick, counter, pick
-              and note on all 42 day rows goes, because day 5 no longer falls on the same date or
-              carries the same tasks.
+              <span className="text-bad">the timeline is cleared</span>. Every tick, counter, pick
+              and note on all {state.totalDays} day rows goes, because a given day no longer falls on the
+              same date or carries the same tasks.
               {recordedDays > 0
                 ? ` ${recordedDays} recorded ${recordedDays === 1 ? 'day' : 'days'} will be erased.`
                 : ' Nothing is recorded yet, so nothing is lost.'}{' '}
@@ -272,7 +267,7 @@ export function Settings({ open, onClose, email, onSignOut }: SettingsProps) {
         <div className="border-t border-rule/70 pt-5">
           <p className="micro text-bad">Reset</p>
           <p className="mt-2 text-[12px] leading-relaxed text-muted">
-            Clears all 42 days, catalogs, notes, deltas and redos. Type{' '}
+            Clears all {state.totalDays} days, plus catalogs, notes, deltas, redos and applications. Type{' '}
             <span className="font-mono text-ink">{CONFIRM_WORD}</span> to enable it.
           </p>
           <div className="mt-3 flex gap-2">

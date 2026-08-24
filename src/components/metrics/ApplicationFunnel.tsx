@@ -58,7 +58,7 @@ export function ApplicationFunnel({ state }: ApplicationFunnelProps) {
 
           <p className="mt-4 max-w-prose text-[12px] leading-relaxed text-muted">
             {stats.inFlight} still open, {stats.offers} at offer. Answered counts anything that came
-            back — screen, onsite, offer or rejection. Ghosted is the pile that never replied.
+            back: screen, onsite, offer or rejection. Ghosted is the pile that never replied.
           </p>
         </>
       )}

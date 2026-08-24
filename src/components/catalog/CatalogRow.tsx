@@ -119,7 +119,7 @@ export function CatalogRow({ catalog, index, item }: CatalogRowProps) {
             <p className="mb-3 font-mono text-[11px] text-signal sm:hidden">{result}</p>
           )}
           <NoteField
-            label="Note · kept across all 42 days"
+            label="Note · kept across every day"
             value={note}
             onChange={(next) => update(setCatalogNote(catalog, index, next))}
             placeholder={item.tag ? `${item.tag}` : undefined}

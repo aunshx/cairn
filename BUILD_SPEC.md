@@ -115,7 +115,7 @@ Reads and writes never pass a user id from the client. The policy derives it fro
 This matters more than any feature. Losing a day of notes kills the habit.
 
 - Debounce writes 700ms after any mutation.
-- Status indicator in the header, four states: amber "Unsaved", grey "Saving…", green "Saved", red "Save failed — retrying".
+- Status indicator in the header, four states: amber "Unsaved", grey "Saving…", green "Saved", red "Save failed, retrying".
 - Failed writes retry every 5s and immediately on the `online` event.
 - Background flush every 20s while dirty.
 - `beforeunload` warning when there are unsaved changes.
@@ -227,7 +227,7 @@ Evening · 18:00 – 21:00
 ```
 Counter caps on B days: `dsa1` 3, `dsa2` 2. The `lld` task pulls from the LLD catalog exactly as `design` pulls from HLD.
 
-### Day M — mock and revision
+### Day M, mock and revision
 Lighter cognitive load by design: output and consolidation, no new material beyond the one HLD.
 ```
 Session 1 · 05:30 – 11:00
@@ -271,35 +271,35 @@ Freeform textarea: "How it went. What broke. What to change tomorrow."
 
 Everything computed from stored state. No extra tracking. Every number needs a one-line plain reading underneath so it means something at a glance, not just a figure.
 
-## Row 1 — four stat blocks
+## Row 1, four stat blocks
 
-- **Current streak** — consecutive finished days ending at the most recent. Rest days count if marked finished.
-- **Completion rate** — checked tasks over available tasks across all finished days, as a percentage.
-- **Flag rate, last 7 days** — flagged DSA over total DSA logged. Falling means retention is improving. Show the delta against the previous 7 days with a direction arrow.
-- **Projected finish** — at the current 7-day rate, which day each track lands on. Show the track furthest behind pace.
-- **Mocks completed** — count of `mock1` and `mock2` checked across all M days, against a target of 12.
+- **Current streak**, consecutive finished days ending at the most recent. Rest days count if marked finished.
+- **Completion rate**, checked tasks over available tasks across all finished days, as a percentage.
+- **Flag rate, last 7 days**, flagged DSA over total DSA logged. Falling means retention is improving. Show the delta against the previous 7 days with a direction arrow.
+- **Projected finish**, at the current 7-day rate, which day each track lands on. Show the track furthest behind pace.
+- **Mocks completed**, count of `mock1` and `mock2` checked across all M days, against a target of 12.
 
-## Row 2 — burn-up chart
+## Row 2, burn-up chart
 
 Inline SVG, cumulative DSA problems against day number, with a straight target line to 252 at day 42. Actual line in the accent colour, target as a dashed rule. Area under the actual line filled at low opacity. This is the chart that answers "am I behind" honestly.
 
-## Row 3 — completion heatmap
+## Row 3, completion heatmap
 
 A 6×7 grid, one cell per day, opacity scaled to that day's completion rate. M days outlined rather than filled. Hover shows day number, type, and rate. Empty future days are hairline outlines only.
 
-## Row 4 — two panels side by side
+## Row 4, two panels side by side
 
 **Track coverage.** Horizontal bars for HLD, LLD, GFE, Behavioral, DSA. Each shows done over total, plus a thin marker at where you should be by today to finish on time. Bars past the marker in the accent colour, behind it in amber.
 
 **Consistency by task.** The five tasks skipped most often, by percentage missed across finished days. This is the honest panel: it shows what actually gets dropped when a day goes badly. Label it "What slips first" and do not editorialize beyond that.
 
-## Row 5 — revision health
+## Row 5, revision health
 
 - Redos cleared on first re-attempt, as a percentage
 - Open redos and how many are overdue
 - Average days between a flag and its first clear
 
-## Row 6 — recent notes
+## Row 6, recent notes
 
 The five most recent delta log entries and day notes interleaved by day, newest first, as a compact reading list. Clicking one jumps to that day.
 
@@ -334,7 +334,7 @@ WebSocket fan-out with rooms · FB Live Comments · connections before degradati
 LWW register then a small CRDT · Google Docs · convergence after concurrent edits,
 Cosine brute force vs HNSW · ChatGPT · recall vs latency at 100k vectors
 
-**Behavioral** — ten tagged `course`:
+**Behavioral**, ten tagged `course`:
 Why the Behavioral Matters, Decode: How Interviews Work, Select: Choosing Responses, Deliver: Telling a Good Story, The Big Three Questions, Adapting to Big Tech, Practicing, Common Pitfalls, Special Interview Types, Answering AI Questions
 
 Then nine tagged `story`:

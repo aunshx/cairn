@@ -58,7 +58,7 @@ export function DsaSlots({ day, slot, cap, record }: DsaSlotsProps) {
               aria-pressed={entry.flag}
               title={
                 entry.flag
-                  ? 'Flagged — scheduled for a redo. Click to unschedule.'
+                  ? 'Flagged, scheduled for a redo. Click to unschedule.'
                   : "Didn't get it cleanly? Flag it to schedule a redo at +3, +10 and +30 days."
               }
               aria-label={`${entry.flag ? 'Unflag' : 'Flag'} ${entry.name} for a redo`}
@@ -81,7 +81,7 @@ export function DsaSlots({ day, slot, cap, record }: DsaSlotsProps) {
 
       {rows.length > 0 && (
         <p className="pt-0.5 text-[11px] leading-snug text-dim">
-          Flag anything you did not get cleanly — it lands in the redo queue at +3, +10 and +30 days.
+          Flag anything you did not get cleanly. It lands in the redo queue at +3, +10 and +30 days.
         </p>
       )}
 
@@ -97,7 +97,7 @@ export function DsaSlots({ day, slot, cap, record }: DsaSlotsProps) {
                 add()
               }
             }}
-            placeholder={`Problem ${rows.length + 1} of ${cap} — type or paste a URL`}
+            placeholder={`Problem ${rows.length + 1} of ${cap}, type or paste a URL`}
             aria-label={`Add problem to ${slot}`}
             className="field min-w-0 flex-1 py-1 text-[12px]"
           />
