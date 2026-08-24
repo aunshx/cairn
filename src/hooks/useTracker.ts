@@ -1,6 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { getSupabase, TRACKER_TABLE } from '../lib/supabase'
-import { emptyState, validateState, type SaveState, type TrackerState } from '../lib/types'
+import {
+  emptyDay,
+  emptyState,
+  validateState,
+  type CatalogKey,
+  type DayRecord,
+  type Delta,
+  type Redo,
+  type SaveState,
+  type TrackerState,
+} from '../lib/types'
 
 const DEBOUNCE_MS = 700
 const RETRY_MS = 5_000
@@ -248,3 +258,147 @@ export function useTrackerStore(userId: string | null): TrackerStore {
   if (!tracker) return { status: 'loading' }
   return { status: 'ready', tracker, needsAuth }
 }
+
+export type Recipe = (state: TrackerState) => TrackerState
+
+function withDay(state: TrackerState, day: number, edit: (record: DayRecord) => DayRecord): TrackerState {
+  const key = String(day)
+  const current = state.days[key] ?? emptyDay()
+  const next = edit(current)
+  if (next === current) return state
+  return { ...state, days: { ...state.days, [key]: next } }
+}
+
+export const goToDay =
+  (day: number): Recipe =>
+  (state) =>
+    state.day === day ? state : { ...state, day }
+
+export const setCount =
+  (day: number, taskId: string, value: number, cap: number): Recipe =>
+  (state) => {
+    const n = Math.max(0, Math.min(cap, value))
+    return withDay(state, day, (record) => ({
+      ...record,
+      n: { ...record.n, [taskId]: n },
+      done: { ...record.done, [taskId]: n >= cap },
+    }))
+  }
+
+export const toggleTask =
+  (day: number, taskId: string, cap: number | null): Recipe =>
+  (state) => {
+    const record = state.days[String(day)] ?? emptyDay()
+    const next = record.done[taskId] !== true
+    if (cap === null) {
+      return withDay(state, day, (r) => ({ ...r, done: { ...r.done, [taskId]: next } }))
+    }
+    return setCount(day, taskId, next ? cap : 0, cap)(state)
+  }
+
+export const setTaskNote =
+  (day: number, taskId: string, note: string): Recipe =>
+  (state) =>
+    withDay(state, day, (record) => ({ ...record, notes: { ...record.notes, [taskId]: note } }))
+
+export const setDayNote =
+  (day: number, note: string): Recipe =>
+  (state) =>
+    withDay(state, day, (record) => ({ ...record, note }))
+
+export const setFinished =
+  (day: number, finished: boolean): Recipe =>
+  (state) =>
+    withDay(state, day, (record) => ({
+      ...record,
+      finished,
+      finishedAt: finished ? new Date().toISOString() : null,
+    }))
+
+export const addDsa =
+  (day: number, name: string): Recipe =>
+  (state) => {
+    const trimmed = name.trim()
+    if (!trimmed) return state
+    return withDay(state, day, (record) => ({
+      ...record,
+      dsa: [...record.dsa, { name: trimmed, flag: false, solved: true }],
+    }))
+  }
+
+export const removeDsa =
+  (day: number, index: number): Recipe =>
+  (state) =>
+    withDay(state, day, (record) => ({
+      ...record,
+      dsa: record.dsa.filter((_, i) => i !== index),
+    }))
+
+export function redoFor(name: string, day: number): Redo {
+  return { name, due: [day + 3, day + 10, day + 30], cleared: [] }
+}
+
+export const toggleDsaFlag =
+  (day: number, index: number): Recipe =>
+  (state) => {
+    const record = state.days[String(day)] ?? emptyDay()
+    const entry = record.dsa[index]
+    if (!entry) return state
+    const flag = !entry.flag
+
+    const withFlag = withDay(state, day, (r) => ({
+      ...r,
+      dsa: r.dsa.map((e, i) => (i === index ? { ...e, flag } : e)),
+    }))
+
+    if (flag) {
+      const exists = withFlag.redos.some((r) => r.name === entry.name && r.cleared.length === 0)
+      if (exists) return withFlag
+      return { ...withFlag, redos: [...withFlag.redos, redoFor(entry.name, day)] }
+    }
+    return {
+      ...withFlag,
+      redos: withFlag.redos.filter((r) => !(r.name === entry.name && r.cleared.length === 0)),
+    }
+  }
+
+export const addRedo =
+  (name: string, day: number): Recipe =>
+  (state) => {
+    const trimmed = name.trim()
+    if (!trimmed) return state
+    return { ...state, redos: [...state.redos, redoFor(trimmed, day)] }
+  }
+
+export const clearRedo =
+  (index: number, day: number): Recipe =>
+  (state) => ({
+    ...state,
+    redos: state.redos.map((r, i) =>
+      i === index && r.cleared.length < r.due.length ? { ...r, cleared: [...r.cleared, day] } : r,
+    ),
+  })
+
+export const removeRedo =
+  (index: number): Recipe =>
+  (state) => ({ ...state, redos: state.redos.filter((_, i) => i !== index) })
+
+export const appendDelta =
+  (delta: Delta): Recipe =>
+  (state) => ({ ...state, deltas: [...state.deltas, delta] })
+
+export const toggleCatalog =
+  (key: CatalogKey, index: number): Recipe =>
+  (state) => {
+    const map = state[key]
+    const id = String(index)
+    return { ...state, [key]: { ...map, [id]: !map[id] } }
+  }
+
+export const setCatalogNote =
+  (key: CatalogKey, index: number, note: string): Recipe =>
+  (state) => ({ ...state, notes: { ...state.notes, [`${key}:${index}`]: note } })
+
+export const setStart =
+  (start: string): Recipe =>
+  (state) => ({ ...state, start })
