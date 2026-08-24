@@ -6,15 +6,16 @@ import { Card } from '../ui/Card'
 import { EmptyState } from '../ui/EmptyState'
 import { Tabs } from '../ui/Tabs'
 import { CatalogRow } from './CatalogRow'
+import { JobsCatalog } from './JobsCatalog'
 
 export function CatalogView() {
   const { state } = useTracker()
-  const [active, setActive] = useState<CatalogKey>('dsa')
+  const [active, setActive] = useState<CatalogKey | 'jobs'>('dsa')
   const [query, setQuery] = useState('')
 
-  const catalog = CATALOGS[active]
+  const catalog = active === 'jobs' ? null : CATALOGS[active]
   const needle = query.trim().toLowerCase()
-  const rows = catalog.items
+  const rows = (catalog?.items ?? [])
     .map((item, index) => ({ item, index }))
     .filter(({ item }) =>
       needle === ''
@@ -22,19 +23,25 @@ export function CatalogView() {
         : `${item.name} ${item.tag} ${item.measure ?? ''}`.toLowerCase().includes(needle),
     )
 
-  const tabs = CATALOG_ORDER.map((key) => ({
-    key,
-    label: CATALOGS[key].short,
-    meta: `${countDone(state[key], key)}/${CATALOGS[key].items.length}`,
-  }))
+  const tabs: { key: CatalogKey | 'jobs'; label: string; meta: string }[] = [
+    ...CATALOG_ORDER.map((key) => ({
+      key: key as CatalogKey | 'jobs',
+      label: CATALOGS[key].short,
+      meta: `${countDone(state[key], key)}/${CATALOGS[key].items.length}`,
+    })),
+    { key: 'jobs', label: 'Jobs', meta: `${state.applications.length}` },
+  ]
 
   return (
     <div className="space-y-4">
       <Tabs items={tabs} active={active} onChange={setActive} label="Catalogs" />
 
+      {active === 'jobs' || !catalog ? (
+        <JobsCatalog />
+      ) : (
       <Card
         title={catalog.label}
-        meta={`${countDone(state[active], active)} of ${catalog.items.length} done`}
+        meta={`${countDone(state[catalog.key], catalog.key)} of ${catalog.items.length} done`}
         actions={
           <input
             value={query}
@@ -56,11 +63,12 @@ export function CatalogView() {
         ) : (
           <ul>
             {rows.map(({ item, index }) => (
-              <CatalogRow key={`${active}-${index}`} catalog={active} index={index} item={item} />
+              <CatalogRow key={`${catalog.key}-${index}`} catalog={catalog.key} index={index} item={item} />
             ))}
           </ul>
         )}
       </Card>
+      )}
     </div>
   )
 }
