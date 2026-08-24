@@ -168,9 +168,10 @@ export function Header({
                 type="button"
                 onClick={onSignOut}
                 title="Sign out"
-                className="flex items-center gap-2 rounded-full border border-rule bg-panel-2 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted transition-colors hover:border-bad/50 hover:bg-bad/10 hover:text-bad"
+                aria-label="Sign out"
+                className="flex size-9 items-center justify-center rounded-full border border-rule bg-panel-2 text-muted transition-colors hover:border-bad/50 hover:bg-bad/10 hover:text-bad"
               >
-                <svg viewBox="0 0 20 20" aria-hidden="true" className="size-4 shrink-0">
+                <svg viewBox="0 0 20 20" aria-hidden="true" className="size-4">
                   <path
                     d="M12 3H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h7"
                     fill="none"
@@ -187,7 +188,6 @@ export function Header({
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span className="hidden sm:inline">Sign out</span>
               </button>
             </div>
           </div>
