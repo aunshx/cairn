@@ -152,7 +152,7 @@ export function Header({
           </div>
         </div>
 
-        <div className="mt-4 overflow-x-auto pb-1">
+        <div className="mt-4 -mx-2 overflow-x-auto px-2 py-1.5">
           <DayStrip state={state} onJump={onJump} />
         </div>
 
