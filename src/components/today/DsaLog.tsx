@@ -4,6 +4,7 @@ import { NEETCODE_250 } from '../../lib/neetcode'
 import type { DayRecord } from '../../lib/types'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
+import { DifficultyBadge } from '../ui/DifficultyBadge'
 import { EmptyState } from '../ui/EmptyState'
 
 type DsaLogProps = {
@@ -87,9 +88,12 @@ export function DsaLog({ day, record }: DsaLogProps) {
                 <span className="min-w-0 flex-1 truncate text-[13px] text-ink">{entry.name}</span>
               )}
               {entry.nc !== undefined && NEETCODE_250[entry.nc] && (
-                <span className="hidden shrink-0 rounded-full border border-rule bg-panel-2/60 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.1em] text-dim sm:block">
-                  {NEETCODE_250[entry.nc]?.category}
-                </span>
+                <>
+                  <span className="hidden shrink-0 rounded-full border border-rule bg-panel-2/60 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.1em] text-dim lg:block">
+                    {NEETCODE_250[entry.nc]?.category}
+                  </span>
+                  <DifficultyBadge difficulty={NEETCODE_250[entry.nc]!.difficulty} />
+                </>
               )}
               <Button
                 size="sm"

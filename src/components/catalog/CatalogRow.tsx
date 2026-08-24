@@ -4,6 +4,7 @@ import type { CatalogItem } from '../../lib/catalogs'
 import { noteKey } from '../../lib/catalogs'
 import type { CatalogKey } from '../../lib/types'
 import { Checkbox } from '../ui/Checkbox'
+import { DifficultyBadge } from '../ui/DifficultyBadge'
 import { NoteField } from '../today/NoteField'
 
 type CatalogRowProps = {
@@ -36,14 +37,17 @@ export function CatalogRow({ catalog, index, item }: CatalogRowProps) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
-            className="block w-full text-left"
-          >
-            <span className={`text-[14px] leading-snug ${done ? 'text-muted' : 'text-ink'}`}>{item.name}</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              aria-expanded={open}
+              className="text-left"
+            >
+              <span className={`text-[14px] leading-snug ${done ? 'text-muted' : 'text-ink'}`}>{item.name}</span>
+            </button>
+            {item.difficulty && <DifficultyBadge difficulty={item.difficulty} />}
+          </div>
           <div className="mt-0.5 flex flex-wrap items-center gap-x-2">
             {item.measure && <span className="text-[12px] leading-snug text-muted">{item.measure}</span>}
             {item.url && (

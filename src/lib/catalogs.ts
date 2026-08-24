@@ -1,4 +1,4 @@
-import { NEETCODE_250 } from './neetcode'
+import { NEETCODE_250, type Difficulty } from './neetcode'
 import type { CatalogKey } from './types'
 
 export type CatalogItem = {
@@ -7,6 +7,7 @@ export type CatalogItem = {
   measure?: string
   url?: string
   altUrl?: string
+  difficulty?: Difficulty
 }
 
 export type Catalog = {
@@ -162,7 +163,7 @@ const BEH: CatalogItem[] = [
 const DSA: CatalogItem[] = NEETCODE_250.map((p) => ({
   name: p.name,
   tag: p.category,
-  measure: p.difficulty,
+  difficulty: p.difficulty,
   url: p.url,
   altUrl: p.leetcodeUrl,
 }))
