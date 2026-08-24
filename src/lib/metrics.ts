@@ -366,6 +366,20 @@ export function recentNotes(state: TrackerState, limit = 5): NoteItem[] {
   return items.sort((a, b) => b.day - a.day).slice(0, limit)
 }
 
+export type MechResult = { index: number; name: string; ties: string; value: string }
+
+export function mechanismResults(state: TrackerState): MechResult[] {
+  const items = CATALOGS.mech.items
+  return Object.entries(state.mechResults)
+    .map(([key, value]) => ({ index: Number(key), value: value.trim() }))
+    .filter((entry) => entry.value !== '' && Number.isInteger(entry.index))
+    .sort((a, b) => a.index - b.index)
+    .flatMap(({ index, value }) => {
+      const item = items[index]
+      return item ? [{ index, name: item.name, ties: item.tag, value }] : []
+    })
+}
+
 export function percent(value: number | null, digits = 0): string {
   if (value === null || Number.isNaN(value)) return '—'
   return `${(value * 100).toFixed(digits)}%`
