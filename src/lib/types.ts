@@ -1,4 +1,4 @@
-export type CatalogKey = 'hld' | 'lld' | 'gfe' | 'beh'
+export type CatalogKey = 'hld' | 'lld' | 'gfe' | 'mech' | 'beh'
 
 export type DayType = 'A' | 'B' | 'M'
 
@@ -39,6 +39,7 @@ export type TrackerState = {
   hld: Record<string, boolean>
   lld: Record<string, boolean>
   gfe: Record<string, boolean>
+  mech: Record<string, boolean>
   beh: Record<string, boolean>
   notes: Record<string, string>
   deltas: Delta[]
@@ -126,6 +127,7 @@ export function emptyState(): TrackerState {
     hld: {},
     lld: {},
     gfe: {},
+    mech: {},
     beh: {},
     notes: {},
     deltas: [],
@@ -172,6 +174,7 @@ export function validateState(raw: unknown): TrackerState {
     hld: boolMap(raw.hld),
     lld: boolMap(raw.lld),
     gfe: boolMap(raw.gfe),
+    mech: boolMap(raw.mech),
     beh: boolMap(raw.beh),
     notes: strMap(raw.notes),
     deltas: arr(raw.deltas)

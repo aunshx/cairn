@@ -22,6 +22,7 @@ export const TRACK_LABEL: Record<TrackKey, string> = {
   hld: 'HLD',
   lld: 'LLD',
   gfe: 'GFE',
+  mech: 'Mechanisms',
   beh: 'Behavioral',
   dsa: 'DSA',
   apps: 'Applications',

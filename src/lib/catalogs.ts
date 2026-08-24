@@ -3,6 +3,7 @@ import type { CatalogKey } from './types'
 export type CatalogItem = {
   name: string
   tag: string
+  measure?: string
 }
 
 export type Catalog = {
@@ -90,6 +91,49 @@ const GFE: CatalogItem[] = [
   { name: 'Poll Widget', tag: 'optimistic update' },
 ]
 
+const MECH: CatalogItem[] = [
+  { name: 'Token bucket in Redis', tag: 'Rate Limiter', measure: 'allowed under burst vs sustained' },
+  {
+    name: 'Consistent hashing ring',
+    tag: 'Distributed Cache',
+    measure: '% keys remapped at 1 vs 150 vnodes',
+  },
+  {
+    name: 'Optimistic lock vs SELECT FOR UPDATE',
+    tag: 'Ticketmaster',
+    measure: 'double-bookings per 1000 attempts',
+  },
+  {
+    name: 'Append-only log with offsets',
+    tag: 'Notification System',
+    measure: 'throughput and restart behaviour',
+  },
+  { name: 'Bloom filter', tag: 'Web Crawler', measure: 'false positive rate vs bits per element' },
+  {
+    name: 'Count-min sketch + min-heap',
+    tag: 'YouTube Top K',
+    measure: 'memory vs exact, error at p99',
+  },
+  { name: 'Geohash vs quadtree', tag: 'Tinder / Uber', measure: 'query latency at 1M points' },
+  {
+    name: 'Idempotency keys + outbox',
+    tag: 'Payment System',
+    measure: 'duplicate charges under retry storm',
+  },
+  { name: 'Presigned multipart upload', tag: 'Dropbox', measure: 'time to first byte, server memory' },
+  {
+    name: 'WebSocket fan-out with rooms',
+    tag: 'FB Live Comments',
+    measure: 'connections before degradation',
+  },
+  {
+    name: 'LWW register then a small CRDT',
+    tag: 'Google Docs',
+    measure: 'convergence after concurrent edits',
+  },
+  { name: 'Cosine brute force vs HNSW', tag: 'ChatGPT', measure: 'recall vs latency at 100k vectors' },
+]
+
 const BEH: CatalogItem[] = [
   { name: 'Why the Behavioral Matters', tag: 'course' },
   { name: 'Decode: How Interviews Work', tag: 'course' },
@@ -116,10 +160,11 @@ export const CATALOGS: Record<CatalogKey, Catalog> = {
   hld: { key: 'hld', label: 'High level design', short: 'HLD', tagLabel: 'Read first', items: HLD },
   lld: { key: 'lld', label: 'Low level design', short: 'LLD', tagLabel: 'Source', items: LLD },
   gfe: { key: 'gfe', label: 'Frontend components', short: 'GFE', tagLabel: 'Concept', items: GFE },
+  mech: { key: 'mech', label: 'Mechanisms', short: 'Mechanisms', tagLabel: 'Ties to', items: MECH },
   beh: { key: 'beh', label: 'Behavioral', short: 'Behavioral', tagLabel: 'Kind', items: BEH },
 }
 
-export const CATALOG_ORDER: CatalogKey[] = ['hld', 'lld', 'gfe', 'beh']
+export const CATALOG_ORDER: CatalogKey[] = ['hld', 'lld', 'gfe', 'mech', 'beh']
 
 export function catalogSize(key: CatalogKey): number {
   return CATALOGS[key].items.length
