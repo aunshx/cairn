@@ -6,6 +6,7 @@ import {
   flagRate,
   habitStreak,
   habitTotal,
+  gymStats,
   missedTasks,
   mocksCompleted,
   percent,
@@ -14,6 +15,7 @@ import {
 import { APPS_TARGET, MOCK_TARGET, TOTAL_DAYS } from '../../lib/types'
 import { ApplicationFunnel } from './ApplicationFunnel'
 import { BurnUpChart } from './BurnUpChart'
+import { GymBreakdown } from './GymBreakdown'
 import { Heatmap } from './Heatmap'
 import { RecentNotes } from './RecentNotes'
 import { RevisionHealth } from './RevisionHealth'
@@ -32,6 +34,7 @@ export function MetricsView() {
   const mocks = mocksCompleted(state)
   const missed = missedTasks(state)
   const apps = applicationStats(state)
+  const gym = gymStats(state)
   const habits = [
     { id: 'nodrink', label: 'Alcohol-free run' },
     { id: 'nosmoke', label: 'Smoke-free run' },
@@ -140,6 +143,18 @@ export function MetricsView() {
           }
         />
 
+        <StatBlock
+          label="Training sessions"
+          value={`${gym.sessions}`}
+          detail={gym.sessions > 0 ? `${Math.round(gym.totalMinutes / 60)}h logged` : 'strength and cardio'}
+          tone={gym.sessions > 0 ? 'good' : 'neutral'}
+          reading={
+            gym.sessions === 0
+              ? 'Pick what you did on the Gym 1 and Gym 2 rows and the split shows up below.'
+              : `${Math.round(gym.totalMinutes)} min across ${gym.daysTrained} days, averaging ${Math.round(gym.averageMinutes ?? 0)} min a session.`
+          }
+        />
+
         {habits.map((habit) => (
           <StatBlock
             key={habit.id}
@@ -158,7 +173,10 @@ export function MetricsView() {
 
       <BurnUpChart state={state} />
 
-      <ApplicationFunnel state={state} />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <ApplicationFunnel state={state} />
+        <GymBreakdown state={state} />
+      </div>
 
       <Heatmap state={state} onJump={jump} />
 

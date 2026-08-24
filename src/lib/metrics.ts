@@ -4,6 +4,8 @@ import { ALL_DAYS, dayType, isMechanismDay, tasksFor, type Task } from './schedu
 import {
   APPLICATION_STATUSES,
   APPS_TARGET,
+  GYM_ACTIVITIES,
+  GYM_DEFAULT_MINUTES,
   DSA_TARGET,
   MECH_TARGET,
   MOCK_TARGET,
@@ -12,6 +14,7 @@ import {
   type Application,
   type ApplicationStatus,
   type CatalogKey,
+  type GymActivity,
   type DayRecord,
   type DayType,
   type Delta,
@@ -465,6 +468,63 @@ export function applicationsForDay(state: TrackerState, day: number): { app: App
   return state.applications
     .map((app, index) => ({ app, index }))
     .filter(({ app }) => app.day === day)
+}
+
+export type GymStats = {
+  sessions: number
+  byActivity: Record<GymActivity, number>
+  minutesByActivity: Record<GymActivity, number>
+  totalMinutes: number
+  daysTrained: number
+  topActivity: GymActivity | null
+  averageMinutes: number | null
+}
+
+export function gymStats(state: TrackerState): GymStats {
+  const byActivity = Object.fromEntries(GYM_ACTIVITIES.map((a) => [a, 0])) as Record<GymActivity, number>
+  const minutesByActivity = Object.fromEntries(GYM_ACTIVITIES.map((a) => [a, 0])) as Record<
+    GymActivity,
+    number
+  >
+  let sessions = 0
+  let daysTrained = 0
+  let totalMinutes = 0
+
+  for (const day of ALL_DAYS) {
+    const record = dayRecord(state, day)
+    let trainedToday = false
+    for (const taskId of ['gym1', 'gym2']) {
+      const picked = record.gym[taskId] ?? []
+      if (picked.length === 0) continue
+      sessions += 1
+      trainedToday = true
+      const minutes = record.gymMinutes[taskId] ?? GYM_DEFAULT_MINUTES
+      totalMinutes += minutes
+      const share = minutes / picked.length
+      for (const activity of picked) {
+        if ((GYM_ACTIVITIES as readonly string[]).includes(activity)) {
+          byActivity[activity as GymActivity] += 1
+          minutesByActivity[activity as GymActivity] += share
+        }
+      }
+    }
+    if (trainedToday) daysTrained += 1
+  }
+
+  const top = GYM_ACTIVITIES.reduce<GymActivity | null>((best, a) => {
+    if (byActivity[a] === 0) return best
+    return best === null || byActivity[a] > byActivity[best] ? a : best
+  }, null)
+
+  return {
+    sessions,
+    byActivity,
+    minutesByActivity,
+    totalMinutes,
+    daysTrained,
+    topActivity: top,
+    averageMinutes: sessions === 0 ? null : totalMinutes / sessions,
+  }
 }
 
 export type NoteItem =
