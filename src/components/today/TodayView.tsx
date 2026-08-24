@@ -1,6 +1,8 @@
-import { setFinished, useTracker } from '../../hooks/useTracker'
+import { clearDay, setFinished, useTracker } from '../../hooks/useTracker'
 import { dayCompletion, dayRecord } from '../../lib/metrics'
 import { dayType, formatDayDate, sessionsFor } from '../../lib/schedule'
+import { useState } from 'react'
+import { Confetti } from '../Confetti'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { DayNote } from './DayNote'
@@ -19,24 +21,55 @@ export function TodayView() {
   const completion = dayCompletion(state, day)
   const isMockDay = dayType(day) === 'M'
 
+  const [fire, setFire] = useState(0)
+  const [confirmFor, setConfirmFor] = useState<number | null>(null)
+  const confirmClear = confirmFor === day
+
+  function toggleFinished() {
+    const next = !record.finished
+    update(setFinished(day, next))
+    if (next) setFire((n) => n + 1)
+  }
+
   return (
     <div className="space-y-6">
+      <Confetti fire={fire} />
       <NeetcodeDatalist />
       <Card
         title="Schedule"
         meta={`${completion.done}/${completion.total} checked`}
         actions={
-          <Button
-            variant={record.finished ? 'accent' : 'default'}
-            aria-pressed={record.finished}
-            onClick={() => update(setFinished(day, !record.finished))}
-          >
-            <span
-              aria-hidden="true"
-              className={`size-2 border ${record.finished ? 'border-signal bg-signal' : 'border-dim'}`}
-            />
-            Day finished
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant={confirmClear ? 'danger' : 'ghost'}
+              onClick={() => {
+                if (!confirmClear) {
+                  setConfirmFor(day)
+                  return
+                }
+                update(clearDay(day))
+                setConfirmFor(null)
+              }}
+              onBlur={() => setConfirmFor(null)}
+              title="Reset every tick, counter, pick and note on this day"
+            >
+              {confirmClear ? 'Clear day?' : 'Clear'}
+            </Button>
+
+            <Button
+              variant={record.finished ? 'accent' : 'default'}
+              aria-pressed={record.finished}
+              onClick={toggleFinished}
+            >
+              <span
+                aria-hidden="true"
+                className={`size-2 rounded-full border ${
+                  record.finished ? 'border-ground bg-ground' : 'border-dim'
+                }`}
+              />
+              Day finished
+            </Button>
+          </div>
         }
         bodyClassName=""
       >

@@ -380,6 +380,38 @@ export const setFinished =
       finishedAt: finished ? new Date().toISOString() : null,
     }))
 
+export const clearDay =
+  (day: number): Recipe =>
+  (state) => {
+    const key = String(day)
+    const record = state.days[key]
+    if (!record) return state
+
+    let out: TrackerState = state
+
+    for (const [taskId, value] of Object.entries(record.picks)) {
+      const picked = decodePick(value)
+      if (picked?.kind === 'catalog' && record.done[taskId] === true) {
+        out = setCatalog(picked.catalog, picked.index, false)(out)
+      }
+    }
+
+    const loggedElsewhere = new Set<number>()
+    for (const [otherKey, other] of Object.entries(state.days)) {
+      if (otherKey === key) continue
+      for (const entry of other.dsa) if (entry.nc !== undefined) loggedElsewhere.add(entry.nc)
+    }
+    for (const entry of record.dsa) {
+      if (entry.nc !== undefined && !loggedElsewhere.has(entry.nc)) {
+        out = setCatalog('dsa', entry.nc, false)(out)
+      }
+    }
+
+    const days = { ...out.days }
+    delete days[key]
+    return { ...out, days }
+  }
+
 export const addDsa =
   (day: number, raw: string, slot?: string): Recipe =>
   (state) => {
