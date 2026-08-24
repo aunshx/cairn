@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { goToDay, useTracker } from '../hooks/useTracker'
 import type { ViewKey } from '../lib/types'
 import { CatalogView } from './catalog/CatalogView'
+import { Footer } from './Footer'
 import { Header } from './Header'
 import { MetricsView } from './metrics/MetricsView'
 import { Settings } from './Settings'
@@ -35,7 +36,7 @@ export function AppShell({ email, onSignOut }: AppShellProps) {
   })
 
   return (
-    <div className="min-h-dvh">
+    <div className="flex min-h-dvh flex-col">
       <Header
         state={state}
         saveState={saveState}
@@ -47,11 +48,13 @@ export function AppShell({ email, onSignOut }: AppShellProps) {
         onSignOut={onSignOut}
       />
 
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
         {view === 'today' && <TodayView />}
         {view === 'metrics' && <MetricsView />}
         {view === 'catalog' && <CatalogView />}
       </main>
+
+      <Footer />
 
       <Settings
         open={settingsOpen}
