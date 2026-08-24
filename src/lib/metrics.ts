@@ -67,6 +67,19 @@ export function currentStreak(state: TrackerState): number {
   return streak
 }
 
+export function habitStreak(state: TrackerState, taskId: string, upTo: number): number {
+  let streak = 0
+  for (let d = upTo; d >= 1; d -= 1) {
+    if (!isDone(dayRecord(state, d), taskId)) break
+    streak += 1
+  }
+  return streak
+}
+
+export function habitTotal(state: TrackerState, taskId: string): number {
+  return ALL_DAYS.reduce((n, d) => (isDone(dayRecord(state, d), taskId) ? n + 1 : n), 0)
+}
+
 export function completionRate(state: TrackerState): { done: number; total: number; rate: number | null } {
   let done = 0
   let total = 0

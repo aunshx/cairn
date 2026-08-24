@@ -3,6 +3,8 @@ import {
   completionRate,
   currentStreak,
   flagRate,
+  habitStreak,
+  habitTotal,
   missedTasks,
   mocksCompleted,
   percent,
@@ -27,6 +29,14 @@ export function MetricsView() {
   const worst = worstProjection(state, day)
   const mocks = mocksCompleted(state)
   const missed = missedTasks(state)
+  const habits = [
+    { id: 'nodrink', label: 'Alcohol-free run' },
+    { id: 'nosmoke', label: 'Smoke-free run' },
+  ].map((h) => ({
+    ...h,
+    streak: habitStreak(state, h.id, day),
+    total: habitTotal(state, h.id),
+  }))
 
   const jump = (target: number) => update(goToDay(target))
 
@@ -39,7 +49,7 @@ export function MetricsView() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <StatBlock
           label="Current streak"
           value={`${streak}`}
@@ -114,6 +124,21 @@ export function MetricsView() {
                 : `Left unchecked on the ${missed.days} ${missed.days === 1 ? 'day' : 'days'} you closed. See what slips first below.`
           }
         />
+
+        {habits.map((habit) => (
+          <StatBlock
+            key={habit.id}
+            label={habit.label}
+            value={`${habit.streak}`}
+            detail={habit.streak === 1 ? 'day' : 'days'}
+            tone={habit.streak > 0 ? 'good' : 'neutral'}
+            reading={
+              habit.streak === 0
+                ? `Consecutive clean days ending at day ${day}. Tick it on the day itself to keep the run alive.`
+                : `Unbroken to day ${day}. ${habit.total} clean ${habit.total === 1 ? 'day' : 'days'} in total.`
+            }
+          />
+        ))}
       </div>
 
       <BurnUpChart state={state} />
