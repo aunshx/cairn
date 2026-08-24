@@ -30,8 +30,12 @@ const STEPS = [
 VITE_SUPABASE_ANON_KEY=<anon key>`,
   },
   {
-    title: '4 · Deploy',
-    body: 'Netlify: build command npm run build, publish directory dist. Set both variables under Site settings → Environment variables, then redeploy so the build picks them up.',
+    title: '4 · Keep it to yourself',
+    body: 'This app is built for one person. Set VITE_SIGNUP_CODE and the Create account form asks for a code — but Vite inlines env vars into the bundle, so treat that as a speed bump, not a lock. The real control is turning off Allow new users to sign up under Authentication → Sign In / Providers once your own account exists. The README has a Postgres trigger if you want enforced one-time codes instead.',
+  },
+  {
+    title: '5 · Deploy',
+    body: 'Netlify: build command npm run build, publish directory dist. Set the variables under Site settings → Environment variables, then redeploy so the build picks them up.',
   },
 ]
 

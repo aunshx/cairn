@@ -17,6 +17,7 @@ Fill `.env` with the two values from your Supabase project:
 ```
 VITE_SUPABASE_URL=https://<project-ref>.supabase.co
 VITE_SUPABASE_ANON_KEY=<anon key>
+VITE_SIGNUP_CODE=<optional access code for creating an account>
 ```
 
 If either is missing the app renders setup instructions instead of the tracker, so a misconfigured
@@ -65,6 +66,68 @@ This is not a leaked credential. The **secret** key (previously **service_role**
 thing entirely and must never appear in this repository, in `.env`, or in a Netlify variable for
 this site.
 
+### Keeping it to one person
+
+This app is built for a single user. There are three levels of lock, and only the last two are real.
+
+**1. Access code (convenience).** Set `VITE_SIGNUP_CODE` in `.env` and the Create account form asks
+for it. Vite inlines env vars into the bundle at build time, so this code is readable by anyone who
+opens devtools. It stops a stranger who wanders onto the URL. It does not stop anyone who tries.
+
+**2. Turn sign-ups off (recommended, one toggle).** Once your own account exists, go to
+Authentication → Sign In / Providers → Email and turn off **Allow new users to sign up**. Nobody can
+create an account after that, whatever they send. This is the simplest real lock.
+
+**3. Enforce the code in Postgres.** If you want to keep sign-ups open but gated, enforce the code
+server-side where the client cannot reach it. The app already sends the code as user metadata.
+
+```sql
+create table signup_codes (
+  code text primary key,
+  used_by uuid references auth.users(id) on delete set null,
+  used_at timestamptz
+);
+
+alter table signup_codes enable row level security;
+-- no policies: only the trigger below, which is security definer, may read it
+
+insert into signup_codes (code) values ('pick-something-long-and-random');
+
+create or replace function public.enforce_signup_code()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  supplied text := new.raw_user_meta_data ->> 'signup_code';
+  matched  text;
+begin
+  select code into matched
+    from signup_codes
+   where code = supplied and used_by is null
+     for update;
+
+  if matched is null then
+    raise exception 'invalid or already used signup code';
+  end if;
+
+  update signup_codes set used_by = new.id, used_at = now() where code = matched;
+  return new;
+end;
+$$;
+
+create trigger enforce_signup_code
+  before insert on auth.users
+  for each row execute function public.enforce_signup_code();
+```
+
+Each code works exactly once. A sign-up without a valid one fails at the database, and the app
+surfaces it as "That access code is not valid."
+
+Row-level security already means a second account could never see your data — it would get its own
+empty row. These controls are about who can create an account at all.
+
 ### Email confirmation
 
 For a single-user instance, turn off **Confirm email** under Authentication → Sign In / Providers →
@@ -75,6 +138,13 @@ tier has no SMTP configured.
 
 Free Supabase projects pause after about a week of inactivity. When that happens the app shows a load
 error with a retry button; open the Supabase dashboard, resume the project, then retry.
+
+## Themes
+
+Light and dark, with a third setting that follows the operating system. The control is in the
+header, and the choice is stored in Postgres with everything else rather than in browser storage, so
+it follows you between machines. Before your data loads — on the sign-in screen — the system
+preference applies.
 
 ## Save states
 
