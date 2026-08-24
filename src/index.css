@@ -39,7 +39,6 @@
     font-size: 15px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
-    /* Plotting paper: 8px fine grid, 64px coarse grid, both barely there. */
     background-image:
       linear-gradient(var(--color-rule) 1px, transparent 1px),
       linear-gradient(90deg, var(--color-rule) 1px, transparent 1px),
@@ -54,7 +53,6 @@
   }
 
   body::before {
-    /* Knocks the grid back so it reads as paper, not as a table. */
     content: '';
     position: fixed;
     inset: 0;
@@ -64,7 +62,6 @@
     z-index: -1;
   }
 
-  /* Numerals, labels and metadata are mono; prose is sans. */
   input,
   textarea,
   select,
@@ -92,7 +89,6 @@
 }
 
 @layer components {
-  /* Uppercase letterspaced micro-label, used for every field and panel title. */
   .micro {
     font-family: var(--font-mono);
     font-size: 10px;
