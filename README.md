@@ -52,13 +52,18 @@ policies derive the owner from the JWT, so a read or write can only ever touch o
 
 ### Keys
 
-Project Settings → API. Copy **Project URL** into `VITE_SUPABASE_URL` and the **anon / public** key
-into `VITE_SUPABASE_ANON_KEY`.
+Press **Connect** in the project header, or open Project Settings → API Keys. Copy **Project URL**
+into `VITE_SUPABASE_URL`, and the client key into `VITE_SUPABASE_ANON_KEY`.
 
-The anon key is designed to ship in the browser and is safe to commit once row-level security is
+Supabase now issues that client key as a **publishable key** beginning `sb_publishable_`. Older
+projects show it as the **anon / public** key, a JWT beginning `eyJ`. Either works here — the
+variable keeps the `ANON_KEY` name for continuity.
+
+This key is designed to ship in the browser and is safe to commit once row-level security is
 enabled — it grants nothing on its own, because every policy above requires an authenticated JWT.
-This is not a leaked credential. The **service_role** key is a different thing entirely and must
-never appear in this repository, in `.env`, or in a Netlify variable for this site.
+This is not a leaked credential. The **secret** key (previously **service_role**) is a different
+thing entirely and must never appear in this repository, in `.env`, or in a Netlify variable for
+this site.
 
 ### Email confirmation
 

@@ -21,7 +21,7 @@ const STEPS = [
   },
   {
     title: '2 · Find the keys',
-    body: 'Project Settings → API. Copy the Project URL and the anon / public key. The anon key is meant to ship in the browser and is safe with row-level security on. Never copy the service_role key into this project.',
+    body: 'Press Connect in the project header, or open Project Settings → API Keys. Copy the Project URL, then the client key — newer projects show it as a publishable key beginning sb_publishable_, older ones as the anon / public key. It is meant to ship in the browser and is safe with row-level security on. Never copy the secret or service_role key into this project.',
   },
   {
     title: '3 · Point the app at it',
